@@ -324,7 +324,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>..\Library\Device\Include;..\Library\StdDriver\inc</IncludePath>
+              <IncludePath>..\Library\Device\Include;..\Library\StdDriver\inc;..\Src\App;..\Src\Comm;..\Src\Drv</IncludePath>
             </VariousControls>
           </C51>
           <Ax51>
@@ -379,7 +379,12 @@
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\main.c</FilePath>
+              <FilePath>..\Src\App\main.c</FilePath>
+            </File>
+            <File>
+              <FileName>jump_star.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\App\jump_star.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -388,6 +393,23 @@
         </Group>
         <Group>
           <GroupName>Drv</GroupName>
+          <Files>
+            <File>
+              <FileName>digital_lcd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\Drv\digital_lcd.c</FilePath>
+            </File>
+            <File>
+              <FileName>led.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\Drv\led.c</FilePath>
+            </File>
+            <File>
+              <FileName>timer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\Drv\timer.c</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>Library</GroupName>
