@@ -2,11 +2,11 @@
 #define _LED_H_
 
 /*  P3  */  
-#define LED_B_FULL	P2^1
-#define LED_J_OK	P3^5
-#define LED_A_FAULT	P1^2
-#define LED_A_GOOD	P1^1
-#define LED_B_LOW	P3^4
+sbit LED_B_FULL = P2^1;
+sbit LED_J_OK =	P3^5;
+sbit LED_A_FAULT = P1^2;
+sbit LED_A_GOOD	= P1^1;
+sbit LED_B_LOW = P3^4;
 
 enum _LED_CONTROL_
 {

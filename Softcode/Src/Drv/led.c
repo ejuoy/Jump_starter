@@ -1,8 +1,7 @@
 #include "MS51_32K.h"
-#include "type.h"
+#include "app_type.h"
 #include "led.h"
 
-//char led_array[] = {LED_B_FULL,LED_J_OK,LED_A_FAULT,LED_A_GOOD,LED_B_LOW};
 
 void led_gpio_init(void)
 {
@@ -11,12 +10,36 @@ void led_gpio_init(void)
  	P12_PUSHPULL_MODE;
  	P11_PUSHPULL_MODE;
  	P34_PUSHPULL_MODE;
+
+ 	LED_B_FULL = 0;
+ 	LED_J_OK = 0;
+ 	LED_A_FAULT = 0;
+ 	LED_A_GOOD = 0;
+ 	LED_B_LOW = 0;
 }
 
 void led_gpio_contrl(char led,char status)
 {
-	if(led>L_NULL)return;
-	//led_array[led] = status;
+	switch(led)
+	{
+		case B_FULL:
+			LED_B_FULL = status;
+			break;
+		case J_OK:
+			LED_J_OK = status;
+			break;
+		case A_FAULT:
+			LED_A_FAULT = status;
+			break;
+		case A_GOOD:
+			LED_A_GOOD = status;
+			break;
+		case B_LOW:
+			LED_B_LOW = status;
+			break;
+		default:
+			break;
+	}
 }
 
 
