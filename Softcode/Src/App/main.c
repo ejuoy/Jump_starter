@@ -7,6 +7,7 @@
 #include "app_type.h"
 #include "led.h"
 #include "digital_lcd.h"
+#include "app_time.h"
 
 #define SOFT_VERSION	"v1.00.01"
 #define PRJ_NAME		"CP010-121"
@@ -32,12 +33,19 @@ void main (void)
     led_gpio_init();
     Version_show();
     led_gpio_contrl(LED_B_FULL,1);
+    //app_timer0_init();
+
     digital_gpio_init();
     //digital_ocr_change(DIGITAL_OCR_UV,1);
     //digital_ocr_change(DIGITAL_OCR_DP,1);
-    //digital_num_change(0,1);
-    //digital_num_change(1,3);
+    digital_num_change(0,7);
+    //digital_num_change(1,1);
     //digital_num_change(2,3);
+     //digital_ocr_change(0,1);
+     //digital_ocr_change(6,1);
+     //digital_ocr_change(12,1);
+     //digital_ocr_change(18,1);
+     //digital_ocr_change(24,1);
     while(1)
     {
       //digital_lcd_test();
