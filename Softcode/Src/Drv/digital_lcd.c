@@ -60,6 +60,7 @@ static void digital_gpio_control(char seg,char control)
             LCD_GPIO_1 = 0;
         }
         else{
+            LCD_GPIO_1 = 0;
             P22_INPUT_MODE;
         }
     }
@@ -75,6 +76,7 @@ static void digital_gpio_control(char seg,char control)
             LCD_GPIO_2 = 0;
         }
         else{
+            LCD_GPIO_2 = 1;
             P23_INPUT_MODE;
         }
     }
@@ -91,6 +93,7 @@ static void digital_gpio_control(char seg,char control)
             LCD_GPIO_3 = 0;
         }
         else{
+            LCD_GPIO_3 = 0;
             P24_INPUT_MODE;
         }
     }
@@ -106,6 +109,7 @@ static void digital_gpio_control(char seg,char control)
             LCD_GPIO_4 = 0;
         }
         else{
+            LCD_GPIO_4 = 0;
             P13_INPUT_MODE;
         }
     }
@@ -121,6 +125,7 @@ static void digital_gpio_control(char seg,char control)
             LCD_GPIO_5 = 0;
         }
         else{
+            LCD_GPIO_5 = 0;
             P14_INPUT_MODE;
         }
     }
@@ -136,6 +141,7 @@ static void digital_gpio_control(char seg,char control)
             LCD_GPIO_6 = 0;
         }
         else{
+            LCD_GPIO_6 = 0;
             P24_INPUT_MODE;
         }
     }
@@ -153,6 +159,7 @@ static void digital_gpio_control(char seg,char control)
         }
         else{
             //printf("7:PUll In\r\n");
+            LCD_GPIO_7 = 0;
             P15_INPUT_MODE;
         }
     }

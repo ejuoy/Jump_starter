@@ -38,7 +38,7 @@ void main (void)
     digital_gpio_init();
     //digital_ocr_change(DIGITAL_OCR_UV,1);
     //digital_ocr_change(DIGITAL_OCR_DP,1);
-    digital_num_change(0,7);
+    digital_num_change(0,9);
     //digital_num_change(1,1);
     //digital_num_change(2,3);
      //digital_ocr_change(0,1);
