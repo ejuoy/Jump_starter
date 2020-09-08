@@ -33,14 +33,15 @@ void main (void)
     led_gpio_init();
     Version_show();
     led_gpio_contrl(LED_B_FULL,1);
-    //app_timer0_init();
+    app_timer0_init();
 
     digital_gpio_init();
-    //digital_ocr_change(DIGITAL_OCR_UV,1);
-    //digital_ocr_change(DIGITAL_OCR_DP,1);
-    digital_num_change(0,9);
-    //digital_num_change(1,1);
-    //digital_num_change(2,3);
+
+    digital_ocr_change(DIGITAL_OCR_V,1);
+    digital_ocr_change(DIGITAL_OCR_DP,1);
+    digital_num_change(0,1);
+    digital_num_change(1,2);
+    digital_num_change(2,3);
      //digital_ocr_change(0,1);
      //digital_ocr_change(6,1);
      //digital_ocr_change(12,1);

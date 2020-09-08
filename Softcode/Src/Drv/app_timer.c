@@ -18,7 +18,7 @@ void Timer0_ISR (void) interrupt 1           /*interrupt address is 0x000B */
     TL0 = TL0_INIT;
     TF0 = 0 ;
     LED_A_GOOD = ~LED_A_GOOD;
-    digital_lcd_show();
+    if(digital_update_time==0)digital_update_time = 1;
 
     _pop_(SFRS);
 }

@@ -5,7 +5,7 @@
 // full display
 //static char digital_display_arr[5] = {0xfe,0xfd,0xfb,0xf7,0xef};
 static char digital_display_arr[5] = {0x00,0x00,0x00,0x00,0x00};
-
+volatile char digital_update_time = 0;
 char code digital_num_table[]={0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f,0x77,0x7c,0x39,0x5e,0x79,0x71};
 
 void digital_gpio_init(void)
@@ -37,15 +37,6 @@ void test_delay(unsigned int cnt)
 {
     while(cnt--);
 }
-/*
-sbit LCD_GPIO_1 = P2^2;
-sbit LCD_GPIO_2 = P2^3;
-sbit LCD_GPIO_3 = P2^4;
-sbit LCD_GPIO_4 = P1^3;
-sbit LCD_GPIO_5 = P1^4;
-sbit LCD_GPIO_6 = P2^5;
-sbit LCD_GPIO_7 = P1^5;
-*/
 
 static void digital_gpio_control(char seg,char control)
 {
@@ -153,30 +144,14 @@ static void digital_gpio_control(char seg,char control)
     }
     else{
         if(seg==pos){
-            //printf("7:PUSH 0\r\n");
             P15_PUSHPULL_MODE;
             LCD_GPIO_7 = 0;
         }
         else{
-            //printf("7:PUll In\r\n");
             LCD_GPIO_7 = 0;
             P15_INPUT_MODE;
         }
     }
-    #if 0
-    LCD_GPIO_1 = (control>>0)&0x01;
-    LCD_GPIO_2 = (control>>1)&0x01;
-    LCD_GPIO_3 = (control>>2)&0x01;
-    LCD_GPIO_4 = (control>>3)&0x01;
-    LCD_GPIO_5 = (control>>4)&0x01;
-    LCD_GPIO_6 = (control>>5)&0x01;
-    LCD_GPIO_7 = (control>>6)&0x01;
-    #endif
-
-    #if 1
-    printf("%x,%d  %bu,%bu,%bu,%bu,%bu,%bu,%bu\r\n",(unsigned int )control,(unsigned int )seg,(control>>0)&0x01,(control>>1)&0x01,(control>>2)&0x01,(control>>3)&0x01,(control>>4)&0x01,\
-        (control>>5)&0x01,(control>>6)&0x01);
-    #endif
 }
 
 void digital_ocr_change(char ocr,char status)
@@ -282,7 +257,7 @@ void digital_lcd_test(void)
     count ++;
 }
 
-#if 1
+#if 0
 void digital_lcd_show(void)
 {
 	char i = 0;
@@ -293,10 +268,13 @@ void digital_lcd_show(void)
 }
 #endif
 
-#if 0
+#if 1
+
 void digital_lcd_show(void)
 {
-    static char i = 0;
+	  static char i = 0;
+    if(digital_update_time==0)return;
+    digital_update_time = 0;
     digital_gpio_control(i,digital_display_arr[i]);
     i++;
     if(i==5)i=0;
