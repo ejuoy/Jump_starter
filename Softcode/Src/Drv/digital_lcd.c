@@ -137,12 +137,12 @@ static void digital_gpio_control(char seg,char control)
     }
     else{
         if(seg==pos){
-            P24_PUSHPULL_MODE;
+            P25_PUSHPULL_MODE;
             LCD_GPIO_6 = 0;
         }
         else{
             LCD_GPIO_6 = 0;
-            P24_INPUT_MODE;
+            P25_INPUT_MODE;
         }
     }
 
