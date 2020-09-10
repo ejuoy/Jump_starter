@@ -7,7 +7,10 @@
 #include "app_type.h"
 #include "led.h"
 #include "digital_lcd.h"
-#include "app_time.h"
+#include "app_timer.h"
+#include "app_adc.h"
+
+
 
 #define SOFT_VERSION	"v1.00.01"
 #define PRJ_NAME		"CP010-121"
@@ -20,7 +23,6 @@ void Version_show(void)
 	printf("++++++++++ %s++++++++++++++\r\n",__TIME__);
 	printf("+++++++++++++++++++++++++++++++++\r\n");
 }
-
 
 void main (void) 
 {
@@ -39,18 +41,11 @@ void main (void)
 
     digital_ocr_change(DIGITAL_OCR_V,1);
     digital_ocr_change(DIGITAL_OCR_DP,1);
-    digital_num_change(0,1);
-    digital_num_change(1,2);
-    digital_num_change(2,3);
-     //digital_ocr_change(0,1);
-     //digital_ocr_change(6,1);
-     //digital_ocr_change(12,1);
-     //digital_ocr_change(18,1);
-     //digital_ocr_change(24,1);
+    digital_vcc_display(456,0);
     while(1)
     {
-      //digital_lcd_test();
       digital_lcd_show();
-      //Timer0_Interrupt_Init(16000000,300,1000);
+      jump_star_test();
     }
 }
+

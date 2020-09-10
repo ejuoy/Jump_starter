@@ -6,7 +6,7 @@
 //static char digital_display_arr[5] = {0xfe,0xfd,0xfb,0xf7,0xef};
 static char digital_display_arr[5] = {0x00,0x00,0x00,0x00,0x00};
 volatile char digital_update_time = 0;
-char code digital_num_table[]={0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f,0x77,0x7c,0x39,0x5e,0x79,0x71};
+char code digital_num_table[]={0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f,0x40};
 
 void digital_gpio_init(void)
 {
@@ -206,55 +206,17 @@ void digital_num_change(char pos,char num)
 
 void digital_vcc_display(int value,char status)
 {
-
-}
-
-void digital_lcd_test(void)
-{
-    static char count = 0;
-    if(count==4)count = 0;
-    printf("count=%d\r\n",(unsigned int)count);
-    if(count==0)
+    if(status==0)   // display --
     {
-        LCD_GPIO_1 = 0;
-        LCD_GPIO_2 = 1;
-        LCD_GPIO_3 = 1;
-        LCD_GPIO_4 = 1;
-        LCD_GPIO_5 = 1;
-        LCD_GPIO_6 = 1;
-        LCD_GPIO_7 = 1;
+         digital_num_change(0,10);
+         digital_num_change(1,10);
+         digital_num_change(2,10);       
     }
-    else if(count==1)
-    {
-        LCD_GPIO_1 = 1;
-        LCD_GPIO_2 = 0;
-        LCD_GPIO_3 = 0;
-        LCD_GPIO_4 = 1;
-        LCD_GPIO_5 = 1;
-        LCD_GPIO_6 = 1;
-        LCD_GPIO_7 = 1;
+    else{
+         digital_num_change(0,(value/100)%10);
+         digital_num_change(1,(value/10)%10);
+         digital_num_change(2,value%10);       
     }
-    else if(count==2)
-    {
-        LCD_GPIO_1 = 1;
-        LCD_GPIO_2 = 1;
-        LCD_GPIO_3 = 0;
-        LCD_GPIO_4 = 0;
-        LCD_GPIO_5 = 1;
-        LCD_GPIO_6 = 1;
-        LCD_GPIO_7 = 1;
-    }
-    else if(count==3)
-    {
-        LCD_GPIO_1 = 1;
-        LCD_GPIO_2 = 1;
-        LCD_GPIO_3 = 1;
-        LCD_GPIO_4 = 0;
-        LCD_GPIO_5 = 0;
-        LCD_GPIO_6 = 1;
-        LCD_GPIO_7 = 1;
-    }
-    count ++;
 }
 
 #if 0

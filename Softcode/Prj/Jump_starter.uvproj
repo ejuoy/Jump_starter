@@ -419,6 +419,11 @@
               <FileType>1</FileType>
               <FilePath>..\Src\Drv\app_uart.c</FilePath>
             </File>
+            <File>
+              <FileName>app_adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\Drv\app_adc.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -433,6 +438,16 @@
               <FileName>uart.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Library\StdDriver\src\uart.c</FilePath>
+            </File>
+            <File>
+              <FileName>adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Library\StdDriver\src\adc.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Library\StdDriver\src\delay.c</FilePath>
             </File>
           </Files>
         </Group>
