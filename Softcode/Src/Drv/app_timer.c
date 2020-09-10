@@ -18,8 +18,10 @@ void Timer0_ISR (void) interrupt 1           /*interrupt address is 0x000B */
     TL0 = TL0_INIT;
     TF0 = 0 ;
     LED_A_GOOD = ~LED_A_GOOD;
-    if(digital_update_time==0)digital_update_time = 1;
-
+    digital_lcd_show_1();
+    //if(digital_update_time==0)digital_update_time = 1;
+    jumpstart_vout_produce();
+    jumpstart_been_wave();
     _pop_(SFRS);
 }
 

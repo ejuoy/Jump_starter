@@ -26,17 +26,14 @@ void Version_show(void)
 
 void main (void) 
 {
-/* UART0 initial setting
-  * include sys.c in Library for modify HIRC value to 24MHz
-  * include uart.c in Library for UART initial setting
-*/
+    
     MODIFY_HIRC(HIRC_24);
     app_uart_init();
     led_gpio_init();
     Version_show();
     led_gpio_contrl(LED_B_FULL,1);
     app_timer0_init();
-
+    jumpstart_gpio_init();
     digital_gpio_init();
 
     digital_ocr_change(DIGITAL_OCR_V,1);
@@ -44,8 +41,8 @@ void main (void)
     digital_vcc_display(456,0);
     while(1)
     {
-      digital_lcd_show();
-      jump_star_test();
+      //digital_lcd_show();
+      jumpstart_handle_process();
     }
 }
 

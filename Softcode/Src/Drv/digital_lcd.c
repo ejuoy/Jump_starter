@@ -169,7 +169,7 @@ void digital_ocr_change(char ocr,char status)
     else{
         check_com = com + 1;
     }
-    printf("ocr=%d %d,seg %d,check_com = %d\r\n",(unsigned int )ocr,(unsigned int )status,(unsigned int )seg,(unsigned int )check_com);
+    //printf("ocr=%d %d,seg %d,check_com = %d\r\n",(unsigned int )ocr,(unsigned int )status,(unsigned int )seg,(unsigned int )check_com);
     if(status==0)
     {
         digital_display_arr[seg] &=~(0x01<<seg);
@@ -189,7 +189,7 @@ void digital_num_change(char pos,char num)
     char i = 0;
     char status = 0;
     char ocr = 0;
-    printf("dig %d-%d,%x\r\n",(unsigned int )pos,(unsigned int )num,(unsigned int )digital_num_table[num]);
+    //printf("dig %d-%d,%x\r\n",(unsigned int )pos,(unsigned int )num,(unsigned int )digital_num_table[num]);
     for(i = 0;i<7;i++)
     {
         ocr = pos * 7 + i;
@@ -201,7 +201,7 @@ void digital_num_change(char pos,char num)
         }
         digital_ocr_change(ocr,status);
     }
-    digital_print_array();
+    //digital_print_array();
 }
 
 void digital_vcc_display(int value,char status)
@@ -234,8 +234,17 @@ void digital_lcd_show(void)
 
 void digital_lcd_show(void)
 {
-	  static char i = 0;
+	static char i = 0;
     if(digital_update_time==0)return;
+    digital_update_time = 0;
+    digital_gpio_control(i,digital_display_arr[i]);
+    i++;
+    if(i==5)i=0;
+}
+
+void digital_lcd_show_1(void)
+{
+    static char i = 0;
     digital_update_time = 0;
     digital_gpio_control(i,digital_display_arr[i]);
     i++;
