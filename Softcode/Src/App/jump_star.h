@@ -15,6 +15,11 @@ enum _JUMP_BATTERY_STATUS_
     WORK_JUMP ,
 };
 
+
+#define JUMP_VOUT_AVG_MAX	140
+#define JUMP_VOUT_AVG_MIN	110
+#define JUMP_VOUT_MUL_VALUE	4
+
 #define JUMP_JUDGE_VOUT_NUM 10
 
 #define JUMP_VIN_LOW   140
@@ -38,5 +43,7 @@ void jumpstart_been_wave(void);
 void jumpstart_vout_judge(void);
 void jumpstart_control_status(void);
 void jumpstart_batter_ledcontrl(char led_io,char speed);
+void jumpstart_relay_control(void);
+
 
 #endif

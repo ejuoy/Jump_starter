@@ -140,6 +140,7 @@ void jumpstart_handle_process(void)
 {
     //junpstar_adc_value = app_getadc_value(junpstar_adc_chanle);
     //jumpstart_vout_show();
+    
 	#if 1
     if(junpstar_adc_chanle==VIN_ADC){
         junpstar_vin_vcc = app_getadc_value(junpstar_adc_chanle);
@@ -148,34 +149,15 @@ void jumpstart_handle_process(void)
     }
     else{
         junpstar_out_vcc = app_getadc_value(junpstar_adc_chanle);
-        jumpstart_vout_judge();
-
+        jumpstart_vout_judge();		
+		LED_A_GOOD = ~LED_A_GOOD;
         junpstar_adc_chanle = VIN_ADC;
-        printf("Out,%d\r\n",junpstar_vin_vcc);
+        //printf("Out,%d\r\n",junpstar_out_vcc);
     }
     jumpstart_control_status();
 	#endif
 }
 
-#if 0
-void jumpstart_batter_ledcontrl(char led_io,char speed)     // 
-{
-    static char led_cyc = 0;
-    char i = 0;
-    for(i = 0;i<5;i++)
-    {
-        if(i<speed){
-            //led_gpio_contrl(led_io,led_cyc);
-            if(led_cyc==0){
-                led_cyc=1;
-            }
-            else{
-                led_cyc=0;
-            }
-        }
-    }
-}
-#endif
 void jumpstart_batter_ledcontrl(char led_io,char speed)     // 
 {
     static unsigned int led_cyc = 0;
@@ -225,6 +207,7 @@ void jumpstart_control_status(void)
         else{
             led_gpio_contrl(J_OK,1);
         }
+		digital_vcc_display(junpstar_vin_vcc,1);
     }
     else
     {
@@ -256,18 +239,21 @@ void jumpstart_control_status(void)
             }
             jumpstart_batter_ledcontrl(led_control_io,led_control_speed);
         }
+		digital_vcc_display(junpstar_out_vcc,1);
     }
 }
 
 void jumpstart_vout_judge(void)
 {
     static char vout_pos = 0;
+	static int vout_show = 0;
     char i = 0;
     unsigned int arr_avg = 0;
     unsigned int mul_avg = 0;
     if(vout_pos>JUMP_JUDGE_VOUT_NUM)vout_pos = 0;
-    vout_vcc_arr[vout_pos] = junpstar_adc_value;
+    vout_vcc_arr[vout_pos] = junpstar_out_vcc;
     // judge 
+    vout_show ++;
     for(i = 0;i<10;i++){
         arr_avg += vout_vcc_arr[i];
     }
@@ -281,7 +267,24 @@ void jumpstart_vout_judge(void)
         }
     }
     mul_avg /= 10;
-    printf("avg=%d,mul=%d\r\n",arr_avg,mul_avg);
+	
+	vout_show ++;
+	if(vout_show>100){
+		vout_show = 0;
+		printf("%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\r\n",(unsigned int)vout_vcc_arr[0],(unsigned int)vout_vcc_arr[1],\
+			(unsigned int)vout_vcc_arr[2],(unsigned int)vout_vcc_arr[3],(unsigned int)vout_vcc_arr[4],(unsigned int)vout_vcc_arr[5],\
+			(unsigned int)vout_vcc_arr[6],(unsigned int)vout_vcc_arr[7],(unsigned int)vout_vcc_arr[8],(unsigned int)vout_vcc_arr[9]);
+		printf("avg=%d,mul=%d\r\n",(unsigned int)arr_avg,(unsigned int)mul_avg);
+	}
+	vout_pos ++;
+	if((arr_avg<JUMP_VOUT_AVG_MAX&&arr_avg>JUMP_VOUT_AVG_MIN)\
+		&&mul_avg>=JUMP_VOUT_MUL_VALUE)
+	{
+		jumpstar_work_mode = WORK_JUMP;
+	}
+	else if(mul_avg<JUMP_VOUT_MUL_VALUE){
+		jumpstar_work_mode = WORK_BATTERY;
+	}
 }
 
 

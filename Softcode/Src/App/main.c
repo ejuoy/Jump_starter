@@ -58,6 +58,7 @@ void main (void)
         digital_vcc_display(get_vcc_value,1);
         Timer2_Delay(24000000,128,300,1000);
 		#endif
+		
         jumpstart_handle_process();
         //jumpstart_batter_ledcontrl(0,5);
     }
