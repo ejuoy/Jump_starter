@@ -8,7 +8,7 @@
 static char jumpstar_been_en = 0;
 static char jumpstar_work_mode = 0;
 
-char junpstar_adc_chanle = 0;
+char junpstar_adc_chanle = VIN_ADC;
 unsigned int junpstar_adc_value = 0; 
 void jump_star_test(void)
 {
@@ -38,6 +38,7 @@ void jumpstart_gpio_init(void)
     RELAY_EN = 0;
 }
 
+#if 0
 void jumpstart_vout_produce(void)
 {
     static int cyc = 0;
@@ -58,11 +59,41 @@ void jumpstart_vout_produce(void)
     }
     cyc ++;
 }
+#endif
+
+void jumpstart_vout_produce(void)
+{
+    static int cyc = 0;
+    if(cyc==1){
+        TEST_ENA = 1;
+        TEST_ENB = 0;
+    }
+    else if(cyc==120){
+        TEST_ENA = 0;
+        TEST_ENB = 1;
+    }
+    else if(cyc>241){
+        cyc = 0;
+    }
+    cyc ++;
+}
+
 
 void jumpstart_been_wave(void)
 {
+    static int cyc = 0;	
     if(jumpstar_been_en==0)return;
-    BUZZ_EN=~BUZZ_EN;
+	cyc++;
+	if(cyc<1000)
+	{
+		BUZZ_EN=~BUZZ_EN;
+	}
+	else if(cyc<2000){
+		BUZZ_EN = 0;
+	}
+	else if(cyc>2000){
+		cyc = 0;
+	}
 }
 
 void jumpstart_been_control(char enable)
@@ -70,27 +101,43 @@ void jumpstart_been_control(char enable)
     jumpstar_been_en = enable;
 }
 
+void jumpstart_jidian_control(void)
+{
+	static int cyc = 0;
+	if(cyc==2)
+	{
+		RELAY_EN = 1;
+	}
+	else if(cyc==6000)
+	{
+		RELAY_EN = 0;
+	}
+	else if(cyc>6100){
+		cyc = 0;
+	}
+	cyc ++;
+}
+
 void jumpstart_vout_show(void)
 {
-    static int time = 0;
     unsigned int get_vcc_value = 0;
-    time++;
-    if(time==50){
-        time = 0;
-        get_vcc_value = junpstar_adc_value*250/4095;
-        printf("%d,%d\r\n",get_vcc_value,junpstar_adc_value);
-        digital_vcc_display(get_vcc_value,1);
-    }
+
+	get_vcc_value = (unsigned int)(((unsigned long)junpstar_adc_value*518)/4095);
+    printf("%d,%d\r\n",get_vcc_value,junpstar_adc_value);
+    digital_vcc_display(get_vcc_value,1);
 }
+
 void jumpstart_handle_process(void)
 {
     junpstar_adc_value = app_getadc_value(junpstar_adc_chanle);
     jumpstart_vout_show();
-    // change channle
+	#if 0
     if(junpstar_adc_chanle==VIN_ADC){
         junpstar_adc_chanle = VOUT_ADC;
     }
     else{
         junpstar_adc_chanle = VIN_ADC;
     }
+	#endif
+	
 }

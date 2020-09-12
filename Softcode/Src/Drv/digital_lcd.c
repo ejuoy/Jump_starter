@@ -244,11 +244,23 @@ void digital_lcd_show(void)
 
 void digital_lcd_show_1(void)
 {
-    static char i = 0;
-    digital_update_time = 0;
-    digital_gpio_control(i,digital_display_arr[i]);
-    i++;
-    if(i==5)i=0;
+	static int cyc = 0;
+	static char i = 0;
+	if(cyc>3)
+	{
+		digital_update_time = 0;
+		digital_gpio_control(i,digital_display_arr[i]);
+		i++;
+		if(i==5)i=0;
+		cyc = 0;
+	}
+	else{
+		cyc++;
+	}
+
+
+	
+
 }
 #endif
 

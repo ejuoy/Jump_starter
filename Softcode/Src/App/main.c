@@ -24,9 +24,10 @@ void Version_show(void)
 	printf("+++++++++++++++++++++++++++++++++\r\n");
 }
 
+unsigned int xdata temp;
 void main (void) 
 {
-    
+    unsigned int get_vcc_value = 0;
     MODIFY_HIRC(HIRC_24);
     app_uart_init();
     led_gpio_init();
@@ -41,8 +42,21 @@ void main (void)
     digital_vcc_display(456,0);
     while(1)
     {
-      //digital_lcd_show();
-      jumpstart_handle_process();
+    	#if  0
+        /*Enable channel 4 */ 
+        ENABLE_ADC_CH5;
+        ADC_ConvertTime(ADC_CH5,2,7);
+        clr_ADCCON0_ADCF;
+        set_ADCCON0_ADCS;                  // ADC start trig signal
+        while(ADCF == 0);
+        temp=(ADCRH<<4)+(ADCRL&0x0F);
+        get_vcc_value = (unsigned int)(((unsigned long)temp*518)/4095);
+        printf("VCC=%d,ADC=%d\r\n",get_vcc_value,temp);
+        digital_vcc_display(get_vcc_value,1);
+        Timer2_Delay(24000000,128,300,1000);
+		#endif
+		
+        jumpstart_handle_process();
     }
 }
 
