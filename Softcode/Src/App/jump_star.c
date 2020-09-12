@@ -16,7 +16,7 @@ unsigned int junpstar_adc_value = 0;
 unsigned int junpstar_out_vcc = 140;
 unsigned int junpstar_vin_vcc = 140;
 
-char code battery_vcc_table[6]={JUMP_VOUT_BATTER_ERROR,JUMP_VOUT_BATTER_LOW,JUMP_VOUT_BATTER_MIDDLE,JUMP_VOUT_BATTER_FULL,JUMP_VOUT_BATTER_GOOD,JUMP_VOUT_BATTER_FAULT};
+unsigned char battery_vcc_table[6]={JUMP_VOUT_BATTER_ERROR,JUMP_VOUT_BATTER_LOW,JUMP_VOUT_BATTER_MIDDLE,JUMP_VOUT_BATTER_FULL,JUMP_VOUT_BATTER_GOOD,JUMP_VOUT_BATTER_FAULT};
 unsigned int vout_vcc_arr[JUMP_JUDGE_VOUT_NUM]={0x00};
 
 void jump_star_test(void)
@@ -162,8 +162,9 @@ void jumpstart_batter_ledcontrl(char led_io,char speed)     //
 {
     static unsigned int led_cyc = 0;
     static unsigned int led_pipo = 0;
+	unsigned int i = 0;
     if(speed!=5){
-        led_gpio_contrl(led_io,1);
+		if(led_io!=0)led_gpio_contrl(led_io,1);
         led_cyc ++;
         if(led_cyc==1)
         {
@@ -180,9 +181,15 @@ void jumpstart_batter_ledcontrl(char led_io,char speed)     //
         }
     }
     else{
-        led_gpio_contrl(led_io,0);
+        if(led_io!=0)led_gpio_contrl(led_io,0);
         led_gpio_contrl(led_io+1,1);
     }
+	for(i = 1;i<6;i++){
+		if((i!=led_io)&&(i!=(led_io+1)))
+		{
+			led_gpio_contrl(i,0);
+		}
+	}
 }
 
 void jumpstart_control_status(void)
@@ -228,6 +235,13 @@ void jumpstart_control_status(void)
             led_gpio_contrl(J_OK,1);			
 			jumpstar_digital_status = 1;	// ---
         }
+
+		led_gpio_contrl(B_LOW,0);			
+        led_gpio_contrl(B_MIDDLE,0);
+		led_gpio_contrl(B_FULL,0);			
+        led_gpio_contrl(A_GOOD,0);
+        led_gpio_contrl(A_FAULT,0);
+
 		digital_vcc_display(junpstar_vin_vcc,jumpstar_digital_status);
     }
     else
@@ -250,11 +264,11 @@ void jumpstart_control_status(void)
         {
             for(i = 0 ;i<5;i++)
             {
-                if(junpstar_out_vcc>battery_vcc_table[i]&&junpstar_out_vcc<=battery_vcc_table[i+1])
+                if((junpstar_out_vcc>battery_vcc_table[i])&&(junpstar_out_vcc<=battery_vcc_table[i+1]))
                 {
                     led_control_io = i;
                     led_control_speed = (junpstar_out_vcc - battery_vcc_table[i])*5/(battery_vcc_table[i+1]-battery_vcc_table[i]);
-                    printf("ledcontorl = %d,%d\r\n",(unsigned int)led_control_io,(unsigned int)led_control_speed);
+                    printf("i=%d ledcontorl = %d,%d\r\n",(unsigned int)i,(unsigned int)led_control_io,(unsigned int)led_control_speed);
                     break;
                 }
             }
