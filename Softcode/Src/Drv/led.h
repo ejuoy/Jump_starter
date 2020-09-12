@@ -6,6 +6,8 @@ sbit LED_B_FULL = P2^1;
 sbit LED_J_OK =	P3^5;
 sbit LED_A_FAULT = P1^2;
 sbit LED_A_GOOD	= P1^1;
+sbit LED_J_FAULT = P1^7;
+sbit LED_B_MIDDLE = P3^0;
 sbit LED_B_LOW = P3^4;
 
 enum _LED_CONTROL_
@@ -14,6 +16,8 @@ enum _LED_CONTROL_
 	J_OK ,
 	A_FAULT,
 	A_GOOD,
+    J_FAULT,
+    B_MIDDLE,
 	B_LOW,
 	L_NULL,
 };
