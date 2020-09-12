@@ -7,6 +7,7 @@
 static char digital_display_arr[5] = {0x00,0x00,0x00,0x00,0x00};
 volatile char digital_update_time = 0;
 char code digital_num_table[]={0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f,0x40};
+
 void digital_gpio_init(void)
 {
 	P22_PUSHPULL_MODE;
@@ -209,12 +210,18 @@ void digital_vcc_display(int value,char status)
     {
          digital_num_change(0,10);
          digital_num_change(1,10);
-         digital_num_change(2,10);       
+         digital_num_change(2,10); 
+
+		digital_ocr_change(DIGITAL_OCR_V,0);
+    	digital_ocr_change(DIGITAL_OCR_DP,0);
     }
     else{
          digital_num_change(0,(value/100)%10);
          digital_num_change(1,(value/10)%10);
-         digital_num_change(2,value%10);       
+         digital_num_change(2,value%10);  
+
+		digital_ocr_change(DIGITAL_OCR_V,1);
+    	digital_ocr_change(DIGITAL_OCR_DP,1);
     }
 }
 

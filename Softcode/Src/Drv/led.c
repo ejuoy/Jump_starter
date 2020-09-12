@@ -22,26 +22,30 @@ void led_gpio_init(void)
  	LED_B_LOW = 0;
 }
 
-
 void led_gpio_contrl(char led,char status)
 {
-	printf("111 %d,%d\r\n",(unsigned int)led,(unsigned int)status);
 	switch(led)
 	{
-		case B_FULL:
-			LED_B_FULL = status;
-			break;
 		case J_OK:
 			LED_J_OK = status;
 			break;
-		case A_FAULT:
-			LED_A_FAULT = status;
+		case B_LOW:
+			LED_B_LOW = status;
+			break;
+		case B_MIDDLE:
+			LED_B_MIDDLE = status;
+			break;
+		case B_FULL:
+			LED_B_FULL = status;
 			break;
 		case A_GOOD:
 			LED_A_GOOD = status;
 			break;
-		case B_LOW:
-			LED_B_LOW = status;
+		case A_FAULT:
+			LED_A_FAULT = status;
+			break;
+		case J_FAULT:
+			LED_J_FAULT = status;
 			break;
 		default:
 			break;

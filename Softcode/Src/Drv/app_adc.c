@@ -31,3 +31,4 @@ unsigned int app_getadc_value(char channle)
     return vcc_value;
 
 }
+

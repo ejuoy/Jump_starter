@@ -145,12 +145,12 @@ void jumpstart_handle_process(void)
     if(junpstar_adc_chanle==VIN_ADC){
         junpstar_vin_vcc = app_getadc_value(junpstar_adc_chanle);
         junpstar_adc_chanle = VOUT_ADC;
-        //printf("In,%d\r\n",junpstar_vin_vcc);
+		//printf("Out,%d\r\n",junpstar_vin_vcc);
     }
     else{
         junpstar_out_vcc = app_getadc_value(junpstar_adc_chanle);
         jumpstart_vout_judge();		
-		LED_A_GOOD = ~LED_A_GOOD;
+		//LED_A_GOOD = ~LED_A_GOOD;
         junpstar_adc_chanle = VIN_ADC;
         //printf("Out,%d\r\n",junpstar_out_vcc);
     }
@@ -190,24 +190,45 @@ void jumpstart_control_status(void)
     char led_control_io = 0;
     char led_control_speed = 0;
     char i = 0;
-    junpstar_out_vcc = 115;
+
+	#if 0
+	printf("%d= %d-%d\r\n",(unsigned int)jumpstar_work_mode,(unsigned int)junpstar_vin_vcc,\
+		(unsigned int)junpstar_out_vcc);
+	#endif
+	
+	#if 0
     if(P_NTC==0)
     {
         jumpstar_digital_status = 0;    // ---
         jumpstart_been_control(1);
     }
+	#endif
+	
     if(WORK_JUMP==jumpstar_work_mode)
     {
-        if(junpstar_vin_vcc>JUMP_VIN_LOW)
-        {
-            digital_ocr_change(DIGITAL_OCR_UV);
-            led_gpio_contrl(LED_J_FAULT,1);
+    	if(junpstar_vin_vcc<JUMP_VIN_LAST_LOW)
+		{
+            digital_ocr_change(DIGITAL_OCR_UV,1);
+			led_gpio_contrl(J_FAULT,1);			
+            led_gpio_contrl(J_OK,0);
             jumpstart_been_control(1);
+			jumpstar_digital_status = 0;	// ---
+		}
+        else if(junpstar_vin_vcc<JUMP_VIN_LOW)
+        {
+            digital_ocr_change(DIGITAL_OCR_UV,1);
+            led_gpio_contrl(J_FAULT,1);			
+            led_gpio_contrl(J_OK,0);
+            jumpstart_been_control(1);
+			jumpstar_digital_status = 1;	// ---
         }
-        else{
-            led_gpio_contrl(J_OK,1);
+        else{			
+            digital_ocr_change(DIGITAL_OCR_UV,0);			
+            led_gpio_contrl(J_FAULT,0);
+            led_gpio_contrl(J_OK,1);			
+			jumpstar_digital_status = 1;	// ---
         }
-		digital_vcc_display(junpstar_vin_vcc,1);
+		digital_vcc_display(junpstar_vin_vcc,jumpstar_digital_status);
     }
     else
     {
@@ -239,7 +260,7 @@ void jumpstart_control_status(void)
             }
             jumpstart_batter_ledcontrl(led_control_io,led_control_speed);
         }
-		digital_vcc_display(junpstar_out_vcc,1);
+		digital_vcc_display(junpstar_out_vcc,jumpstar_digital_status);
     }
 }
 
@@ -268,14 +289,6 @@ void jumpstart_vout_judge(void)
     }
     mul_avg /= 10;
 	
-	vout_show ++;
-	if(vout_show>100){
-		vout_show = 0;
-		printf("%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\r\n",(unsigned int)vout_vcc_arr[0],(unsigned int)vout_vcc_arr[1],\
-			(unsigned int)vout_vcc_arr[2],(unsigned int)vout_vcc_arr[3],(unsigned int)vout_vcc_arr[4],(unsigned int)vout_vcc_arr[5],\
-			(unsigned int)vout_vcc_arr[6],(unsigned int)vout_vcc_arr[7],(unsigned int)vout_vcc_arr[8],(unsigned int)vout_vcc_arr[9]);
-		printf("avg=%d,mul=%d\r\n",(unsigned int)arr_avg,(unsigned int)mul_avg);
-	}
 	vout_pos ++;
 	if((arr_avg<JUMP_VOUT_AVG_MAX&&arr_avg>JUMP_VOUT_AVG_MIN)\
 		&&mul_avg>=JUMP_VOUT_MUL_VALUE)
@@ -284,6 +297,15 @@ void jumpstart_vout_judge(void)
 	}
 	else if(mul_avg<JUMP_VOUT_MUL_VALUE){
 		jumpstar_work_mode = WORK_BATTERY;
+	}
+	
+	vout_show ++;
+	if(vout_show>100){
+		vout_show = 0;
+		printf("%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\r\n",(unsigned int)vout_vcc_arr[0],(unsigned int)vout_vcc_arr[1],\
+			(unsigned int)vout_vcc_arr[2],(unsigned int)vout_vcc_arr[3],(unsigned int)vout_vcc_arr[4],(unsigned int)vout_vcc_arr[5],\
+			(unsigned int)vout_vcc_arr[6],(unsigned int)vout_vcc_arr[7],(unsigned int)vout_vcc_arr[8],(unsigned int)vout_vcc_arr[9]);
+		printf("avg=%d,mul=%d\r\n",(unsigned int)arr_avg,(unsigned int)mul_avg);
 	}
 }
 
