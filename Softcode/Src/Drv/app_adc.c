@@ -5,6 +5,7 @@
 unsigned int app_getadc_value(char channle)
 {  
     unsigned int adc_value = 0xFFFF;
+    unsigned int vcc_value = 0xFFFF;
     if(channle==VIN_ADC)
     {
         /*Enable channel 5 */ 
@@ -25,7 +26,8 @@ unsigned int app_getadc_value(char channle)
         while(ADCF == 0);
         adc_value=(ADCRH<<4)+(ADCRL&0x0F);
     }
+    vcc_value = (unsigned int)(((unsigned long)adc_value*518)/4095);
     //printf ("\n ADC CH %d = 0x%02X", (unsigned int) channle, adc_value);
-    return adc_value;
+    return vcc_value;
 
 }

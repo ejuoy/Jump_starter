@@ -12,14 +12,14 @@ sbit LED_B_LOW = P3^4;
 
 enum _LED_CONTROL_
 {
-	B_FULL = 0,
-	J_OK ,
-	A_FAULT,
-	A_GOOD,
-    J_FAULT,
+    J_OK = 0,
+    B_LOW,
     B_MIDDLE,
-	B_LOW,
-	L_NULL,
+    B_FULL ,
+    A_GOOD,
+    A_FAULT,
+    J_FAULT,
+    L_NULL,
 };
 
 void led_gpio_init(void);

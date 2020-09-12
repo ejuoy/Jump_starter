@@ -35,5 +35,8 @@ void jumpstart_handle_process(void);
 void jumpstart_vout_produce(void);
 void jumpstart_been_control(char enable);
 void jumpstart_been_wave(void);
+void jumpstart_vout_judge(void);
+void jumpstart_control_status(void);
+void jumpstart_batter_ledcontrl(char led_io,char speed);
 
 #endif

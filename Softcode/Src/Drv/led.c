@@ -25,6 +25,7 @@ void led_gpio_init(void)
 
 void led_gpio_contrl(char led,char status)
 {
+	printf("111 %d,%d\r\n",(unsigned int)led,(unsigned int)status);
 	switch(led)
 	{
 		case B_FULL:

@@ -9,7 +9,7 @@
 #include "digital_lcd.h"
 #include "app_timer.h"
 #include "app_adc.h"
-
+#include "jump_star.h"
 
 
 #define SOFT_VERSION	"v1.00.01"
@@ -29,11 +29,13 @@ unsigned int xdata temp;
 void main (void) 
 {
     unsigned int get_vcc_value = 0;
+    char pingpong = 0;
+
     MODIFY_HIRC(HIRC_24);
     app_uart_init();
     led_gpio_init();
     Version_show();
-    led_gpio_contrl(LED_B_FULL,1);
+    //led_gpio_contrl(LED_B_FULL,1);
     app_timer0_init();
     jumpstart_gpio_init();
     digital_gpio_init();
@@ -57,6 +59,7 @@ void main (void)
         Timer2_Delay(24000000,128,300,1000);
 		#endif
         jumpstart_handle_process();
+        //jumpstart_batter_ledcontrl(0,5);
     }
 }
 
