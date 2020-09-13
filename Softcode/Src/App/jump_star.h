@@ -40,7 +40,7 @@ void jump_star_test(void);
 void jumpstart_gpio_init(void);
 void jumpstart_handle_process(void);
 void jumpstart_vout_produce(void);
-void jumpstart_been_control(char enable);
+void jumpstart_been_enbale(char enable);
 void jumpstart_been_wave(void);
 void jumpstart_vout_judge(void);
 void jumpstart_control_status(void);
