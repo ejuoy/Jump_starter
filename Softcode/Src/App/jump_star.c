@@ -278,6 +278,7 @@ void jumpstart_control_status(void)
     }
 }
 
+#if 0
 void jumpstart_vout_judge(void)
 {
     static char vout_pos = 0;
@@ -322,5 +323,52 @@ void jumpstart_vout_judge(void)
 		printf("avg=%d,mul=%d\r\n",(unsigned int)arr_avg,(unsigned int)mul_avg);
 	}
 }
+#endif
+
+void jumpstart_vout_judge(void)
+{
+    static char vout_pos = 0;
+	static int vout_show = 0;
+	unsigned int tmp = 0;
+    char i = 0;
+	char j = 0;
+	unsigned int judge_vcc_arr[JUMP_JUDGE_VOUT_NUM]={0x00};
+    unsigned int mul_value = 0;
+    unsigned int mul_pos = 0;
+    if(vout_pos>JUMP_JUDGE_VOUT_NUM)vout_pos = 0;
+    vout_vcc_arr[vout_pos] = junpstar_out_vcc;
+
+	for(i = 0;i<10;i++){
+		judge_vcc_arr[i] = vout_vcc_arr[j];
+	}
+	
+	for(i = 0 ;i<9;i++)		//sort 
+	{
+		for(j = 0;j<9-i;j++)
+		{
+			if(judge_vcc_arr[j]>judge_vcc_arr[j+1])
+			{
+				tmp = judge_vcc_arr[j];
+				judge_vcc_arr[j] = judge_vcc_arr[j+1];
+				judge_vcc_arr[j+1] = tmp;
+			}
+		}
+	}
+	for(i = 1;i<8;i++){		//drop max and min
+		if((judge_vcc_arr[i+1]-judge_vcc_arr[i])<3){
+			mul_value ++;
+		}
+		else{
+			mul_pos = i;
+		}
+	}
+	if((mul_value>4)&&((mul_pos>2)&(mul_pos<6))){
+		jumpstar_work_mode = WORK_JUMP;
+	}
+	else{
+		jumpstar_work_mode = WORK_BATTERY;
+	}
+}
+
 
 

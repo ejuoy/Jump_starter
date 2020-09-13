@@ -204,8 +204,11 @@ void digital_num_change(char pos,char num)
     //digital_print_array();
 }
 
-void digital_vcc_display(int value,char status)
+void digital_vcc_display(unsigned int value,char status)
 {
+	static unsigned int value_last = 0;
+	char change_flag = 0;
+	static char change_cnt = 0;
     if(status==0)   // display --
     {
          digital_num_change(0,10);
@@ -216,12 +219,32 @@ void digital_vcc_display(int value,char status)
     	digital_ocr_change(DIGITAL_OCR_DP,0);
     }
     else{
-         digital_num_change(0,(value/100)%10);
-         digital_num_change(1,(value/10)%10);
-         digital_num_change(2,value%10);  
-
-		digital_ocr_change(DIGITAL_OCR_V,1);
-    	digital_ocr_change(DIGITAL_OCR_DP,1);
+		 if(value_last>value){
+			if((value_last-value)>1){
+				change_flag = 1;
+			}
+		 }
+		 else{
+			 if((value - value_last)>1){
+			 	change_flag = 1;
+			 }
+		 }
+		 if(change_flag==0){
+			change_cnt ++;
+			if(change_cnt>6){
+				change_cnt = 0;
+				change_flag = 1;
+			}
+		 }
+		 if(change_flag==1){
+			  digital_num_change(0,(value/100)%10);
+			  digital_num_change(1,(value/10)%10);
+			  digital_num_change(2,value%10);  
+			 
+			 digital_ocr_change(DIGITAL_OCR_V,1);
+			 digital_ocr_change(DIGITAL_OCR_DP,1);
+		 }
+		 value_last = value;
     }
 }
 
