@@ -51,5 +51,3 @@ void led_gpio_contrl(char led,char status)
 			break;
 	}
 }
-
-

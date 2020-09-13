@@ -46,6 +46,8 @@ void jumpstart_vout_judge(void);
 void jumpstart_control_status(void);
 void jumpstart_batter_ledcontrl(char led_io,char speed);
 void jumpstart_relay_control(void);
+void jumpstart_relay_enable(char enable);
+
 
 
 #endif

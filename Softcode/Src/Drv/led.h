@@ -1,4 +1,5 @@
-#define _LED_H_
+#ifndef  _LED_H_
+#ifndef _LED_H_
 #define _LED_H_
 
 /*  P3  */  
@@ -26,5 +27,9 @@ void led_gpio_init(void);
 void led_gpio_contrl(char led,char status);
 
 #endif
+
+
+
+
 
 

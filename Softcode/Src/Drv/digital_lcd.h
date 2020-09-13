@@ -26,7 +26,7 @@ void digital_ocr_change(char ocr,char status);
 void digital_vcc_display(unsigned int value,char status);
 void digital_lcd_show(void);
 void digital_num_change(char pos,char num);
-void digital_vcc_display(int value,char status);
+void digital_gpio_init(void);
 extern char digital_update_time;
 
 #endif
