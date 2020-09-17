@@ -139,22 +139,7 @@ void jumpstar_key_timecnt(void)
     }
 }
 
-void jumpstart_batter_ledstatus(unsigned int vout_vcc)
-{
-    char led_control_io = 0;
-    char led_control_speed = 0;
-    char i = 0;
-    for(i = 0 ;i<5;i++)
-    {
-        if((vout_vcc>battery_vcc_table[i])&&(vout_vcc<=battery_vcc_table[i+1]))
-        {
-            led_control_io = i;
-            led_control_speed = (vout_vcc - battery_vcc_table[i])*5/(battery_vcc_table[i+1]-battery_vcc_table[i]);
-            break;
-        }
-    }
-    jumpstart_batter_ledcontrl(led_control_io,led_control_speed);
-}
+
 
 void jumpstart_vin_ledstatus(void)
 {
@@ -178,7 +163,7 @@ void jumpstart_keymode_ledstatus(void)
             led_gpio_contrl(i,1);   
         }
     }
-    else(cnt==1000){
+    else if(cnt==1000){
         for(i = 1;i<6;i++){
             led_gpio_contrl(i,0);   
         }
@@ -189,7 +174,7 @@ void jumpstart_keymode_ledstatus(void)
     cnt++;
 }
 
-void jumpstart_batter_ledcontrl(char led_io,char speed)     // 
+void jumpstart_batter_ledcontrl(char led_io,char speed)    
 {
     static unsigned int led_cyc = 0;
     static unsigned int led_pipo = 0;
@@ -221,6 +206,23 @@ void jumpstart_batter_ledcontrl(char led_io,char speed)     //
             led_gpio_contrl(i,0);
         }
     }
+}
+
+void jumpstart_batter_ledstatus(unsigned int vout_vcc)
+{
+    char led_control_io = 0;
+    char led_control_speed = 0;
+    char i = 0;
+    for(i = 0 ;i<5;i++)
+    {
+        if((vout_vcc>battery_vcc_table[i])&&(vout_vcc<=battery_vcc_table[i+1]))
+        {
+            led_control_io = i;
+            led_control_speed = (vout_vcc - battery_vcc_table[i])*5/(battery_vcc_table[i+1]-battery_vcc_table[i]);
+            break;
+        }
+    }
+    jumpstart_batter_ledcontrl(led_control_io,led_control_speed);
 }
 
 void jumpstar_waring_control(void)
@@ -280,7 +282,7 @@ void jumpstar_relay_process(void)
             jumpstart_relay_enable(1); 
         } 
     }
-    else if(jumpstar_work_mode==KEY)
+    else if(jumpstar_work_mode==WORK_KEY)
     {
         // if not P P_NTC
         if(jumpstar_relay_en==0)        //  OPEN
@@ -356,29 +358,7 @@ unsigned char jumpstart_key_handle(void)
     return key_handle;
 }
 
-/*
-
-*/
-char jumpstart_judge_voutwave(void)     // 0 not judge 1 vout wave  2 vout battey
-{
-    if(jumpstar_relay_en==0||relay_release_flag==1)
-    {
-        if(junpstar_adc_chanle==VIN_ADC){
-            junpstar_vin_vcc = app_getadc_value(junpstar_adc_chanle);
-            junpstar_adc_chanle = VOUT_ADC;
-            
-        }
-        else{
-            junpstar_out_vcc = app_getadc_value(junpstar_adc_chanle);
-            jumpstart_vout_judge();             
-            //LED_A_GOOD = ~LED_A_GOOD;
-            junpstar_adc_chanle = VIN_ADC;
-            //printf("Out,%d\r\n",junpstar_out_vcc);
-        }
-    }
-}
-
-void jumpstart_vout_judge(void)
+unsigned char jumpstart_vout_judge(void)
 {
     unsigned char vout_ret = 0;
     static char vout_pos = 0;
@@ -404,7 +384,7 @@ void jumpstart_vout_judge(void)
     if(judge_disable_cnt>0)
     {
         judge_disable_cnt --;
-        return;
+        return 0;
     }
 
     for(i = 0;i<JUMP_JUDGE_VOUT_NUM;i++){
@@ -458,6 +438,28 @@ void jumpstart_vout_judge(void)
         vout_ret = 0;
     }
     return vout_ret;
+}
+
+/*
+
+*/
+char jumpstart_judge_voutwave(void)     // 0 not judge 1 vout wave  2 vout battey
+{
+    if(jumpstar_relay_en==0||relay_release_flag==1)
+    {
+        if(junpstar_adc_chanle==VIN_ADC){
+            junpstar_vin_vcc = app_getadc_value(junpstar_adc_chanle);
+            junpstar_adc_chanle = VOUT_ADC;
+            
+        }
+        else{
+            junpstar_out_vcc = app_getadc_value(junpstar_adc_chanle);
+            jumpstart_vout_judge();             
+            //LED_A_GOOD = ~LED_A_GOOD;
+            junpstar_adc_chanle = VIN_ADC;
+            //printf("Out,%d\r\n",junpstar_out_vcc);
+        }
+    }
 }
 
 void jumpstart_judge_mode(void)

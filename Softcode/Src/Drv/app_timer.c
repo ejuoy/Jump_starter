@@ -3,6 +3,7 @@
 #include "app_timer.h"
 #include "digital_lcd.h"
 #include "led.h"
+#include "jump_star.h"
 
 
 /* if define TIMER0_FSYS_DIV12, timer = (0xFFFF-0x1000)*12/24MHz = 36.58ms */
@@ -26,7 +27,7 @@ void Timer0_ISR (void) interrupt 1           /*interrupt address is 0x000B */
     //if(digital_update_time==0)digital_update_time = 1;
     jumpstart_vout_produce();
     jumpstart_been_wave();
-	jumpstart_relay_control();
+	  jumpstart_relay_control();
     jumpstar_key_timecnt();
     _pop_(SFRS);
 }
@@ -49,4 +50,7 @@ void app_timer0_init(void)
   
     set_TCON_TR0;                                  //Timer0 run
 }
+
+
+
 
