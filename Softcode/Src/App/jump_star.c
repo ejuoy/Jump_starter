@@ -289,7 +289,7 @@ void jumpstar_waring_control(void)
             }
         }
     }
-    if(junpstar_relay_flag==0){
+    if(junpstar_relay_flag==0||((jumpstar_work_mode==WORK_KEY)&&(jumpstar_relay_en&(0x01))==0)){
         digital_ocr_change(DIGITAL_OCR_OV,0);
         digital_ocr_change(DIGITAL_OCR_CB,0);
         digital_ocr_change(DIGITAL_OCR_OT,0);
@@ -298,6 +298,7 @@ void jumpstar_waring_control(void)
         jumpstar_digital_status = 0;
     }
 }
+
 
 void jumpstar_relay_process(void)
 {
