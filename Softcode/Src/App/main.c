@@ -25,8 +25,8 @@ void Version_show(void)
 }
 
 unsigned int xdata temp;
-
-void main (void) 
+#if 0
+void main(void)
 {
     unsigned int get_vcc_value = 0;
     char pingpong = 0;
@@ -45,7 +45,7 @@ void main (void)
     digital_vcc_display(456,0);
     while(1)
     {
-    	#if  0
+        #if  0
         /*Enable channel 4 */ 
         ENABLE_ADC_CH5;
         ADC_ConvertTime(ADC_CH5,2,7);
@@ -57,9 +57,29 @@ void main (void)
         printf("VCC=%d,ADC=%d\r\n",get_vcc_value,temp);
         digital_vcc_display(get_vcc_value,1);
         Timer2_Delay(24000000,128,300,1000);
-		#endif
-		
+        #endif
+        
         jumpstart_handle_process();
         //jumpstart_batter_ledcontrl(0,5);
+    } 
+}
+#endif
+
+void main (void) 
+{
+    unsigned int get_vcc_value = 0;
+    char pingpong = 0;
+
+    MODIFY_HIRC(HIRC_24);
+    app_uart_init();
+    led_gpio_init();
+    Version_show();
+    app_timer0_init();
+    jumpstart_gpio_init();
+    digital_gpio_init();
+
+    while(1)
+    {
+        jumpstart_handle_process();
     }
 }

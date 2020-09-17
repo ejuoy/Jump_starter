@@ -27,6 +27,7 @@ void Timer0_ISR (void) interrupt 1           /*interrupt address is 0x000B */
     jumpstart_vout_produce();
     jumpstart_been_wave();
 	jumpstart_relay_control();
+    jumpstar_key_timecnt();
     _pop_(SFRS);
 }
 

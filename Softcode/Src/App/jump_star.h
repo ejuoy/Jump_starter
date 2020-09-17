@@ -8,14 +8,18 @@ sbit BUZZ_EN  = P0^3;
 sbit TEST_ENA = P3^3;
 sbit TEST_ENB = P0^1;
 sbit RELAY_EN = P0^0;
+sbit GPIO_KEY = P0^6;
 
-enum _JUMP_BATTERY_STATUS_
+enum _JUMP_WORK_STATUS_
 {
-    WORK_BATTERY = 0,
+    WORK_NULL = 0 ,
+    WORK_BATTERY ,
     WORK_JUMP ,
+    WORK_KEY  ,
+    WORK_BOTH 
 };
 
-
+#define WOKR_KEY_PRESS_TIME 50000
 #define JUMP_VOUT_AVG_MAX	160
 #define JUMP_VOUT_AVG_MIN	70
 #define JUMP_VOUT_MUL_VALUE	3
@@ -36,18 +40,11 @@ enum _JUMP_BATTERY_STATUS_
 #define JUMP_VOUT_BATTER_GOOD    139
 #define JUMP_VOUT_BATTER_FAULT   150
 
-void jump_star_test(void);
+void jumpstar_key_timecnt(void);
 void jumpstart_gpio_init(void);
-void jumpstart_handle_process(void);
 void jumpstart_vout_produce(void);
-void jumpstart_been_enbale(char enable);
 void jumpstart_been_wave(void);
-void jumpstart_vout_judge(void);
-void jumpstart_control_status(void);
-void jumpstart_batter_ledcontrl(char led_io,char speed);
 void jumpstart_relay_control(void);
-void jumpstart_relay_enable(char enable);
-
-
+void jumpstart_handle_process(void);
 
 #endif
