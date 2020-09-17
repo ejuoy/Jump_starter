@@ -23,6 +23,7 @@ unsigned int jumpstar_relay_vcc = 0;
 unsigned int relay_release_flag = 0;
 unsigned char jumpstar_battery_over = 0;
 static int judge_disable_cnt = 0;
+char junpstar_waring_flag = 0;
 
 unsigned char battery_vcc_table[6]={JUMP_VOUT_BATTER_ERROR,JUMP_VOUT_BATTER_LOW,JUMP_VOUT_BATTER_MIDDLE,JUMP_VOUT_BATTER_FULL,JUMP_VOUT_BATTER_GOOD,JUMP_VOUT_BATTER_FAULT};
 unsigned int vout_vcc_arr[JUMP_JUDGE_VOUT_NUM]={0xff};
@@ -227,68 +228,118 @@ void jumpstart_batter_ledstatus(unsigned int vout_vcc)
 
 void jumpstar_waring_control(void)
 {
-    if(P_NTC==1){       //过温
-
+    junpstar_relay_flag = 0;
+    if(P_NTC==1){       //过温    
+        junpstar_relay_flag |=(0x01);
     }
-    else if(jumpstar_work_mode!=WORK_KEY)
+
+    if(junpstar_vin_vcc<JUMP_VIN_LOW){        //vin low beep
+        digital_ocr_change(DIGITAL_OCR_UV,1);
+    }
+    else{
+        digital_ocr_change(DIGITAL_OCR_UV,0);
+    }
+
+    if(jumpstar_work_mode!=WORK_KEY)
     {
         if(junpstar_out_vcc<JUMP_VOUT_SHORT_ERROR)      //short 
         {
-            jumpstart_been_enbale(1);
-            jumpstart_relay_enable(0);      
+            jumpstart_been_enbale(1);  
             jumpstar_digital_status = 0;    // ---
             digital_ocr_change(DIGITAL_OCR_SC,1);
             junpstar_relay_flag |=(0x01<<1);
         }
-        else if(junpstar_vin_vcc<JUMP_VIN_LAST_LOW){        //vin low beep
+        if(junpstar_vin_vcc<JUMP_VIN_LAST_LOW){        //vin low beep
             digital_ocr_change(DIGITAL_OCR_UV,1);
             jumpstar_digital_status = 0;    // ---
-        }
-        else if(junpstar_vin_vcc<JUMP_VIN_LOW){        //vin low beep
-            digital_ocr_change(DIGITAL_OCR_UV,1);
+            jumpstart_been_enbale(1);
+            junpstar_relay_flag |=(0x01<<2);
         }
         if(jumpstar_work_mode!=WORK_JUMP)
         {
             if(junpstar_out_vcc<JUMP_VOUT_BATTER_ERROR&&junpstar_out_vcc>JUMP_VOUT_SHORT_ERROR)     // battery error
             {
-                jumpstar_digital_status = 0;    // 
+                jumpstart_been_enbale(1);
+                jumpstar_digital_status = 0;                        // 
+                junpstar_relay_flag |=(0x01<<3);
             }
             else if(junpstar_out_vcc>JUMP_VOUT_OVER_ERROR)          //  battery vcc high
             {
-                digital_ocr_change(DIGITAL_OCR_OV,1);           
+                digital_ocr_change(DIGITAL_OCR_OV,1); 
+                jumpstart_been_enbale(1);
+                jumpstar_digital_status = 0;    // 
+                junpstar_relay_flag |=(0x01<<4);          
             }
             if(jumpstar_work_mode==WORK_BOTH){
                 if(jumpstar_battery_vcc>junpstar_vin_vcc){
                     digital_ocr_change(DIGITAL_OCR_CB,1);
+                    jumpstart_been_enbale(1);
+                    jumpstar_digital_status = 0;    // 
+                    junpstar_relay_flag |=(0x01<<5);
                 }
             }
             if(jumpstar_work_mode==WORK_BATTERY){           
                 if(junpstar_out_vcc<75)     // can't work
                 {
                     digital_ocr_change(DIGITAL_OCR_UV,1);
+                    jumpstart_been_enbale(1);
+                    jumpstar_digital_status = 0;    // 
+                    junpstar_relay_flag |=(0x01<<5);
                 }
             }
         }
+    }
+    if(junpstar_relay_flag==0){
+        digital_ocr_change(DIGITAL_OCR_OV,0);
+        digital_ocr_change(DIGITAL_OCR_CB,0);
+        digital_ocr_change(DIGITAL_OCR_OT,0);
+        digital_ocr_change(DIGITAL_OCR_SC,0);
+        jumpstart_been_enbale(0);
+        jumpstar_digital_status = 0;
     }
 }
 
 void jumpstar_relay_process(void)
 {
+		char batter_star_ok = 0;
     if(jumpstar_work_mode==WORK_BOTH)
     {
+				if(jumpstar_battery_over==1)return ;
         // if not warning 
         if(jumpstar_relay_en==0)        //  OPEN
         {
-            jumpstart_relay_enable(1); 
-        } 
+            if(junpstar_relay_flag==0){
+                jumpstart_relay_enable(1); 
+            }
+        }
+        if(jumpstar_relay_en==1)
+        {
+            if(jumpstar_battery_vcc>130){
+                if(junpstar_out_vcc>jumpstar_battery_vcc+5){
+                    batter_star_ok = 1;
+                }
+            }
+            else{
+                if(junpstar_out_vcc>130){
+                    batter_star_ok = 1;
+                }
+            }
+            if(batter_star_ok==1){
+                jumpstart_relay_enable(0);
+                judge_disable_cnt = 1000;
+                batter_star_ok = 0;
+                jumpstar_battery_over = 1;
+            }
+        }
     }
     else if(jumpstar_work_mode==WORK_KEY)
     {
         // if not P P_NTC
+        if(jumpstar_relay_en&(0x01))return;     
         if(jumpstar_relay_en==0)        //  OPEN
         {
             jumpstart_relay_enable(1); 
-        } 
+        }
     }
     else 
     {
@@ -419,6 +470,10 @@ unsigned char jumpstart_vout_judge(void)
     if((mul_value>(JUMP_JUDGE_VOUT_NUM/2))&&(mul_value<7)&&(mul_max>6)&&mul_avg<JUMP_JUDGE_VOUT_NUM){
         judge_disable_cnt = JUMP_JUDGE_VOUT_NUM;
         check_wave_cnt++;
+        if(jumpstar_relay_en==0){
+
+
+        }
         if(check_wave_cnt>1){
             check_wave_cnt = 0;
             vout_ret = 1;
@@ -427,7 +482,11 @@ unsigned char jumpstart_vout_judge(void)
     else if(mul_avg<JUMP_JUDGE_VOUT_NUM&&mul_max<6){
         judge_disable_cnt = JUMP_JUDGE_VOUT_NUM;
         check_battey_cnt++;
-        if(check_battey_cnt>1){
+        if(relay_release_flag==1){
+            check_battey_cnt = 0;
+            vout_ret = 2;
+        }
+        else if(check_battey_cnt>1){
             check_battey_cnt = 0;
             vout_ret = 2;
         }
@@ -470,12 +529,14 @@ void jumpstart_judge_mode(void)
     if(junpstar_vin_vcc<40){                // not vin
         if(voutstatus==2){
             jumpstar_work_mode = WORK_BATTERY;
+            jumpstar_battery_over = 0;
         }
     }
     else{
         if(jumpstar_work_mode!=WORK_KEY){
             if(key_value==2){
                 jumpstar_work_mode = WORK_KEY;
+                jumpstar_battery_over = 0;
                 key_press = 0;
             }
             else if(voutstatus==2){
@@ -484,6 +545,7 @@ void jumpstart_judge_mode(void)
             }
             else if(voutstatus==1){
                 jumpstar_work_mode = WORK_JUMP;
+                jumpstar_battery_over = 0;
             }
         }
         else{
