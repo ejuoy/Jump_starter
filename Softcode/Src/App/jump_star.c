@@ -25,14 +25,13 @@ unsigned char jumpstar_battery_over = 0;
 static int judge_disable_cnt = 0;
 char junpstar_waring_flag = 0;
 
-unsigned char battery_vcc_table[6]={JUMP_VOUT_BATTER_ERROR,JUMP_VOUT_BATTER_LOW,JUMP_VOUT_BATTER_MIDDLE,JUMP_VOUT_BATTER_FULL,JUMP_VOUT_BATTER_GOOD,JUMP_VOUT_BATTER_FAULT};
+unsigned char battery_vcc_table[6]={JUMP_VOUT_BATTER_ERROR,JUMP_VOUT_BATTER_LOW,JUMP_VOUT_BATTER_MIDDLE,JUMP_VOUT_BATTER_FULL,JUMP_VOUT_BATTER_GOOD,JUMP_VOUT_OVER_ERROR};
 unsigned int vout_vcc_arr[JUMP_JUDGE_VOUT_NUM]={0xff};
 
 void jumpstart_gpio_init(void)
 {
     P07_INPUT_MODE;
     P06_INPUT_MODE;
-    P07_PUSHPULL_MODE;
     P03_PUSHPULL_MODE;
     P33_PUSHPULL_MODE;
     P01_PUSHPULL_MODE;
@@ -222,22 +221,32 @@ void jumpstart_batter_ledstatus(unsigned int vout_vcc)
             led_control_speed = (vout_vcc - battery_vcc_table[i])*5/(battery_vcc_table[i+1]-battery_vcc_table[i]);
             break;
         }
+		if(vout_vcc>JUMP_VOUT_OVER_ERROR)return ;
     }
     jumpstart_batter_ledcontrl(led_control_io,led_control_speed);
 }
 
 void jumpstar_waring_control(void)
 {
+
     junpstar_relay_flag = 0;
+	if(jumpstar_work_mode!=WORK_BATTERY)
+	{
+		if(junpstar_vin_vcc<JUMP_VIN_LOW){		  //vin low beep
+			digital_ocr_change(DIGITAL_OCR_UV,1);
+			jumpstart_been_enbale(1); 
+			junpstar_relay_flag |=(0x01<<2);
+			if(junpstar_vin_vcc>JUMP_VIN_LAST_LOW)jumpstar_digital_status=1;
+		}
+		else{
+			digital_ocr_change(DIGITAL_OCR_UV,0);		
+			jumpstart_been_enbale(0);		
+		}
+	}
     if(P_NTC==1){       //过温    
         junpstar_relay_flag |=(0x01);
-    }
-
-    if(junpstar_vin_vcc<JUMP_VIN_LOW){        //vin low beep
-        digital_ocr_change(DIGITAL_OCR_UV,1);
-    }
-    else{
-        digital_ocr_change(DIGITAL_OCR_UV,0);
+		digital_ocr_change(DIGITAL_OCR_OT,1);
+		jumpstar_digital_status = 0;	// ---
     }
 
     if(jumpstar_work_mode!=WORK_KEY)
@@ -249,12 +258,15 @@ void jumpstar_waring_control(void)
             digital_ocr_change(DIGITAL_OCR_SC,1);
             junpstar_relay_flag |=(0x01<<1);
         }
-        if(junpstar_vin_vcc<JUMP_VIN_LAST_LOW){        //vin low beep
-            digital_ocr_change(DIGITAL_OCR_UV,1);
-            jumpstar_digital_status = 0;    // ---
-            jumpstart_been_enbale(1);
-            junpstar_relay_flag |=(0x01<<2);
-        }
+		
+		if(jumpstar_work_mode!=WORK_BATTERY){
+			if(junpstar_vin_vcc<JUMP_VIN_LAST_LOW){ 	   //vin low beep
+				digital_ocr_change(DIGITAL_OCR_UV,1);
+				jumpstar_digital_status = 0;	// ---
+				jumpstart_been_enbale(1);
+				junpstar_relay_flag |=(0x01<<2);
+			}
+		}
         if(jumpstar_work_mode!=WORK_JUMP)
         {
             if(junpstar_out_vcc<JUMP_VOUT_BATTER_ERROR&&junpstar_out_vcc>JUMP_VOUT_SHORT_ERROR)     // battery error
@@ -293,10 +305,15 @@ void jumpstar_waring_control(void)
         digital_ocr_change(DIGITAL_OCR_OV,0);
         digital_ocr_change(DIGITAL_OCR_CB,0);
         digital_ocr_change(DIGITAL_OCR_OT,0);
-        digital_ocr_change(DIGITAL_OCR_SC,0);
+        digital_ocr_change(DIGITAL_OCR_SC,0);		
+		digital_ocr_change(DIGITAL_OCR_UV,0);		
         jumpstart_been_enbale(0);
-        jumpstar_digital_status = 0;
+        jumpstar_digital_status = 1;
     }
+	if(junpstar_relay_flag!=0){
+		printf("mode %d waring %d v:%d,%d\r\n",(unsigned int)jumpstar_work_mode,(unsigned int)junpstar_relay_flag,\
+			(unsigned int)junpstar_vin_vcc,(unsigned int)junpstar_out_vcc);
+	}
 }
 
 
@@ -366,8 +383,8 @@ void jumpstart_display_control(void)
     {
         led_gpio_contrl(J_OK,0);
         led_gpio_contrl(J_FAULT,0);
-        digital_vcc_display(junpstar_vin_vcc,jumpstar_digital_status);
-        jumpstart_batter_ledstatus(junpstar_vin_vcc);
+        digital_vcc_display(junpstar_out_vcc,jumpstar_digital_status);
+        jumpstart_batter_ledstatus(junpstar_out_vcc);
     }
     else if(jumpstar_work_mode==WORK_BOTH)
     {
@@ -525,6 +542,7 @@ char jumpstart_judge_voutwave(void)     // 0 not judge 1 vout wave  2 vout batte
 void jumpstart_judge_mode(void)
 {
     char voutstatus = 0;
+	char jumpstar_work_back = jumpstar_work_mode;
     char key_value = jumpstart_key_handle();
     voutstatus = jumpstart_judge_voutwave();
     if(junpstar_vin_vcc<40){                // not vin
@@ -556,6 +574,9 @@ void jumpstart_judge_mode(void)
             }
         }
     }
+	if(jumpstar_work_back!=jumpstar_work_mode){
+		printf("Mode %d\r\n",(unsigned int)jumpstar_work_mode);
+	}
 }
 
 void jumpstart_handle_process(void)

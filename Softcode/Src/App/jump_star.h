@@ -29,7 +29,7 @@ enum _JUMP_WORK_STATUS_
 #define JUMP_VIN_LOW   140
 
 #define JUMP_VOUT_SHORT_ERROR   10
-#define JUMP_VOUT_OVER_ERROR    157
+#define JUMP_VOUT_OVER_ERROR    157		
 
 #define JUMP_VIN_LAST_LOW		 100
 
