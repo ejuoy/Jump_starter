@@ -25,6 +25,12 @@ unsigned char jumpstar_battery_over = 0;
 static int judge_disable_cnt = 0;
 char junpstar_waring_flag = 0;
 
+unsigned int jumpstar_relay_first_vcc = 0;
+unsigned int jumpstar_relay_cnt = 0;
+unsigned int jumpstar_relay_low_vcc = 0;
+unsigned int jumpstar_relay_cur_vcc = 0;
+
+
 unsigned char battery_vcc_table[6]={JUMP_VOUT_BATTER_ERROR,JUMP_VOUT_BATTER_LOW,JUMP_VOUT_BATTER_MIDDLE,JUMP_VOUT_BATTER_FULL,JUMP_VOUT_BATTER_GOOD,JUMP_VOUT_OVER_ERROR};
 unsigned int vout_vcc_arr[JUMP_JUDGE_VOUT_NUM]={0xff};
 
@@ -41,7 +47,6 @@ void jumpstart_gpio_init(void)
     TEST_ENB = 0;
     RELAY_EN = 0;	
 	BUZZ_EN = 0;
-
 }
 
 void jumpstart_vout_produce(void)
@@ -84,7 +89,6 @@ void jumpstart_been_wave(void)
 void jumpstart_been_enbale(char enable)
 {
 	static char pwm_been_init = 0;
-	printf("been %d\r\n",(unsigned int)enable);
 	if(pwm_been_init==0)
 	{
 		pwm_been_init = 1;
@@ -107,11 +111,17 @@ void jumpstart_relay_enable(char enable)
 {
 	jumpstar_relay_en = enable;
 	jumpstar_relay_cyc = 0;
-	relay_release_flag = 0;
+	relay_release_flag = 0;	
+	jumpstar_relay_cnt = 0;
+	jumpstar_relay_first_vcc = 0;
+	jumpstar_relay_cnt = 0;
+	jumpstar_relay_low_vcc = 0;
+	jumpstar_relay_cur_vcc = 0;
 	if(enable==0){
 		RELAY_EN = 0;
 	}
-	else{
+	else{		
+		RELAY_EN = 1;
 		printf("jumpstart_relay_enable = %d\r\n",(unsigned int)enable);
 	}
 }
@@ -132,6 +142,7 @@ void jumpstart_relay_control(void)
 		}
 		else if(jumpstar_relay_cyc==605){
 			relay_release_flag = 1;
+			jumpstar_relay_cnt ++;
 		}
 		else if(jumpstar_relay_cyc>700){
 			jumpstar_relay_cyc = 0;
@@ -161,13 +172,25 @@ void jumpstar_key_timecnt(void)
 
 void jumpstart_vin_ledstatus(void)
 {
+	static char vin_ledstatus = 0;
     if(junpstar_vin_vcc>140){
         led_gpio_contrl(J_OK,1);
-        led_gpio_contrl(J_FAULT,0); 
+        led_gpio_contrl(J_FAULT,0);
+		vin_ledstatus = 1;
     }
     else{
-        led_gpio_contrl(J_OK,0);
-        led_gpio_contrl(J_FAULT,1); 
+		if(vin_ledstatus==1){
+			if(junpstar_vin_vcc<140){
+				led_gpio_contrl(J_OK,0);
+				led_gpio_contrl(J_FAULT,1);
+				vin_ledstatus = 0;
+			}
+		}
+		else{
+			led_gpio_contrl(J_OK,0);
+			led_gpio_contrl(J_FAULT,1);
+			vin_ledstatus = 0;
+		}
     }
 }
 
@@ -210,7 +233,7 @@ void jumpstart_batter_ledcontrl(char led_io,char speed)
                 led_pipo = 0;
             }
         }
-        else if(led_cyc>(200/speed)){
+        else if(led_cyc>(50/speed)){
             led_cyc = 0;
         }
     }
@@ -228,9 +251,20 @@ void jumpstart_batter_ledcontrl(char led_io,char speed)
 
 void jumpstart_batter_ledstatus(unsigned int vout_vcc)
 {
+	static unsigned char delay_play = 5;
     char led_control_io = 0;
     char led_control_speed = 0;
     char i = 0;
+
+	if(delay_play>0)
+	{
+		delay_play--;
+		return ;
+	}
+	else{
+		delay_play = 5;
+	}
+	
     for(i = 0 ;i<5;i++)
     {
         if((vout_vcc>battery_vcc_table[i])&&(vout_vcc<=battery_vcc_table[i+1]))
@@ -255,7 +289,7 @@ void jumpstar_waring_control(void)
     junpstar_relay_flag = 0;
 	if(jumpstar_work_mode!=WORK_BATTERY)
 	{
-		if(junpstar_vin_vcc<JUMP_VIN_LOW){		  //vin low beep
+		if(junpstar_vin_vcc<JUMP_VIN_LOW&&jumpstar_relay_en==0){		  //vin low beep
 			digital_ocr_change(DIGITAL_OCR_UV,1);
 			jumpstart_been_enbale(1); 
 			junpstar_relay_flag |=(0x01<<2);
@@ -285,7 +319,7 @@ void jumpstar_waring_control(void)
         }
 		
 		if(jumpstar_work_mode!=WORK_BATTERY){
-			if(junpstar_vin_vcc<JUMP_VIN_LAST_LOW){ 	   //vin low beep
+			if(junpstar_vin_vcc<JUMP_VIN_LAST_LOW&&jumpstar_relay_en==0){ 	   //vin low beep
 				digital_ocr_change(DIGITAL_OCR_UV,1);
 				jumpstar_digital_status = 0;	// ---
 				jumpstart_been_enbale(1);
@@ -294,13 +328,16 @@ void jumpstar_waring_control(void)
 		}
         if(jumpstar_work_mode!=WORK_JUMP)
         {
+        	#if 0
             if(junpstar_out_vcc<JUMP_VOUT_BATTER_ERROR&&junpstar_out_vcc>JUMP_VOUT_SHORT_ERROR)     // battery error
             {
                 jumpstart_been_enbale(1);
                 jumpstar_digital_status = 0;                        // 
                 junpstar_relay_flag |=(0x01<<3);
             }
-            else if(junpstar_out_vcc>JUMP_VOUT_OVER_ERROR)          //  battery vcc high
+			#endif
+			
+            if(junpstar_out_vcc>JUMP_VOUT_OVER_ERROR)          //  battery vcc high
             {
                 digital_ocr_change(DIGITAL_OCR_OV,1); 
                 jumpstart_been_enbale(1);
@@ -342,10 +379,6 @@ void jumpstar_waring_control(void)
 			(unsigned int)junpstar_vin_vcc,(unsigned int)junpstar_out_vcc);
 		#endif
 	}
-		#if 1
-		printf("mode %d waring %d v:%d,%d\r\n",(unsigned int)jumpstar_work_mode,(unsigned int)junpstar_relay_flag,\
-			(unsigned int)junpstar_vin_vcc,(unsigned int)junpstar_out_vcc);
-		#endif
 }
 
 
@@ -369,7 +402,7 @@ void jumpstar_relay_process(void)
       		printf("mode %d relay %d v:%d,%d\r\n",(unsigned int)jumpstar_work_mode,(unsigned int)jumpstar_battery_vcc,\
 			(unsigned int)junpstar_vin_vcc,(unsigned int)junpstar_out_vcc);
 			#endif
-			#if 1
+			#if 0
             if(jumpstar_battery_vcc>140){
                 if(junpstar_out_vcc>jumpstar_battery_vcc+5){
                     batter_star_ok = 1;
@@ -381,13 +414,45 @@ void jumpstar_relay_process(void)
                 }
             }
 			#endif
+			if(jumpstar_relay_cnt>JUMP_RELAY_CNT_TIME){
+				batter_star_ok = 1;
+			}
+			#if 0
+			if(jumpstar_relay_first_vcc>135)
+			{
+				if(jumpstar_relay_low_vcc<(jumpstar_relay_first_vcc-5)&&\
+					jumpstar_relay_cur_vcc>(jumpstar_relay_first_vcc+2)){
+					batter_star_ok = 1;
+				}
+			}
+			else{
+				if(jumpstar_relay_low_vcc<(jumpstar_relay_first_vcc-5)&&\
+					jumpstar_relay_cur_vcc>135){
+					batter_star_ok = 1;
+				}
+			}
+			#endif
+			
+			if(jumpstar_relay_cnt>0&&jumpstar_relay_low_vcc<(jumpstar_relay_first_vcc-5)&&\
+				jumpstar_relay_cur_vcc>135){
+				batter_star_ok = 1;
+			}
 			
             if(batter_star_ok==1){
                 jumpstart_relay_enable(0);
                 judge_disable_cnt = 20;
                 batter_star_ok = 0;
                 jumpstar_battery_over = 1;
+				jumpstar_relay_cnt = 0;
+				jumpstar_relay_first_vcc = 0;
+				jumpstar_relay_cnt = 0;
+				jumpstar_relay_low_vcc = 0;
+				jumpstar_relay_cur_vcc = 0;
             }
+			#if 0
+      		printf("over %d,%d,%d,%d,%d\r\n",(unsigned int)jumpstar_battery_over,(unsigned int)jumpstar_relay_cnt,\
+			(unsigned int)jumpstar_relay_first_vcc,(unsigned int)jumpstar_relay_low_vcc,(unsigned int)jumpstar_relay_cur_vcc);
+			#endif
         }
     }
     else if(jumpstar_work_mode==WORK_KEY)
@@ -599,6 +664,16 @@ unsigned char jumpstart_judge_voutwave(void)     // 0 not judge 1 vout wave  2 v
             //printf("Out,%d\r\n",junpstar_out_vcc);
         }
     }
+	else if(jumpstar_relay_cyc>100){
+		jumpstar_relay_cur_vcc = app_getadc_value(VIN_ADC);
+		if(jumpstar_relay_first_vcc==0){
+			jumpstar_relay_first_vcc = jumpstar_relay_cur_vcc;
+			jumpstar_relay_low_vcc = jumpstar_relay_cur_vcc;
+		}
+		if(jumpstar_relay_cur_vcc<jumpstar_relay_low_vcc){
+			jumpstar_relay_low_vcc = jumpstar_relay_cur_vcc;
+		}
+	}
 	return vout_ret;
 }
 
