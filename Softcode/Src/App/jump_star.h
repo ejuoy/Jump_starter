@@ -46,6 +46,7 @@ void jumpstar_key_timecnt(void);
 void jumpstart_gpio_init(void);
 void jumpstart_vout_produce(void);
 void jumpstart_been_wave(void);
+
 void jumpstart_relay_control(void);
 void jumpstart_handle_process(void);
 

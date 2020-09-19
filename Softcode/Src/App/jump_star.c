@@ -32,15 +32,16 @@ void jumpstart_gpio_init(void)
 {
     P07_INPUT_MODE;
     P06_INPUT_MODE;
-    P03_PUSHPULL_MODE;
     P33_PUSHPULL_MODE;
     P01_PUSHPULL_MODE;
-    P00_PUSHPULL_MODE;
+    P00_PUSHPULL_MODE;	
+    P03_PUSHPULL_MODE;
 
-    BUZZ_EN = 0;
     TEST_ENA = 0;
     TEST_ENB = 0;
-    RELAY_EN = 0;
+    RELAY_EN = 0;	
+	BUZZ_EN = 0;
+
 }
 
 void jumpstart_vout_produce(void)
@@ -65,12 +66,15 @@ void jumpstart_been_wave(void)
     static int cyc = 0;	
     if(jumpstar_been_en==0)return;
 	cyc++;
-	if(cyc<1000)
+	if(cyc==1)
 	{
-		BUZZ_EN=~BUZZ_EN;
-	}
-	else if(cyc<2000){
+		clr_PWM0CON0_PWM0RUN;
+		DISABLE_PWM0_CH5_P03_OUTPUT;
 		BUZZ_EN = 0;
+	}
+	else if(cyc==1000){
+		set_PWM0CON0_PWM0RUN;
+		ENABLE_PWM0_CH5_P03_OUTPUT;
 	}
 	else if(cyc>2000){
 		cyc = 0;
@@ -79,9 +83,22 @@ void jumpstart_been_wave(void)
 
 void jumpstart_been_enbale(char enable)
 {
+	static 	char pwm_been_init = 0;
+	if(pwm_been_init==0)
+	{
+		pwm_been_init = 1;
+		PWM0_ClockSource(PWM_FSYS,8);     
+   		DISABLE_PWM0_CH5_P03_OUTPUT;                                       
+    	P03_PUSHPULL_MODE;
+    	PWM0_ConfigOutputChannel(5,Independent,EdgeAligned,0x0430,50);    // setting PWM channel 5 as 60% duty high of 0x6FF PWM period = 0x0432
+		clr_PWM0CON0_PWM0RUN;
+		BUZZ_EN = 0;
+	}	
 	jumpstar_been_en = enable;
 	if(enable==0){
 		BUZZ_EN= 0;
+		clr_PWM0CON0_PWM0RUN;
+		DISABLE_PWM0_CH5_P03_OUTPUT;
 	}
 }
 

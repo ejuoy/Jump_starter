@@ -449,6 +449,11 @@
               <FileType>1</FileType>
               <FilePath>..\Library\StdDriver\src\delay.c</FilePath>
             </File>
+            <File>
+              <FileName>pwm0.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Library\StdDriver\src\pwm0.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

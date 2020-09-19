@@ -78,7 +78,7 @@ void main (void)
     app_timer0_init();
     jumpstart_gpio_init();
     digital_gpio_init();
-
+	
     while(1)
     {
         jumpstart_handle_process();
