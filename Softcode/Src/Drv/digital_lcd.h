@@ -10,6 +10,8 @@ sbit LCD_GPIO_5 = P1^4;
 sbit LCD_GPIO_6 = P2^5;
 sbit LCD_GPIO_7 = P1^5;
 
+#define DISPLAY_OCR_PLAY	10
+
 enum DIGITAL_OCR_VALUE
 {
     DIGITAL_OCR_DP=27,

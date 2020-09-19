@@ -156,9 +156,19 @@ static void digital_gpio_control(char seg,char control)
 
 void digital_ocr_change(char ocr,char status)
 {
+	static unsigned char delay_play = DISPLAY_OCR_PLAY;
     char seg = 0;
     char check_com = 0;
     char com = 0;
+	
+	if(delay_play>0&&status==1)
+	{
+		delay_play--;
+		return ;
+	}
+	else{
+		delay_play = DISPLAY_OCR_PLAY;
+	}
     if(ocr>30)return;
     seg = ocr/6;
     com = ocr%6;
@@ -184,6 +194,37 @@ void digital_ocr_change(char ocr,char status)
 }
 
 
+
+void digital_num_ocr(char ocr,char status)
+{
+    char seg = 0;
+    char check_com = 0;
+    char com = 0;
+	
+    if(ocr>30)return;
+    seg = ocr/6;
+    com = ocr%6;
+    if(com<seg)
+    {
+        check_com = com;
+    }
+    else{
+        check_com = com + 1;
+    }
+    //printf("ocr=%d %d,seg %d,check_com = %d\r\n",(unsigned int )ocr,(unsigned int )status,(unsigned int )seg,(unsigned int )check_com);
+    if(status==0)
+    {
+        digital_display_arr[seg] &=~(0x01<<seg);
+        digital_display_arr[seg] &=~(0x01<<check_com);
+    }
+    else
+    {
+        digital_display_arr[seg] &=~(0x01<<seg);
+        digital_display_arr[seg] |=(0x01<<check_com);
+    }
+    //digital_print_array();
+}
+
 void digital_num_change(char pos,char num)
 {
     char i = 0;
@@ -199,7 +240,7 @@ void digital_num_change(char pos,char num)
         else{
             status = 0;
         }
-        digital_ocr_change(ocr,status);
+        digital_num_ocr(ocr,status);
     }
     //digital_print_array();
 }
@@ -215,8 +256,8 @@ void digital_vcc_display(unsigned int value,char status)
          digital_num_change(1,10);
          digital_num_change(2,10); 
 
-		digital_ocr_change(DIGITAL_OCR_V,0);
-    	digital_ocr_change(DIGITAL_OCR_DP,0);
+		digital_num_ocr(DIGITAL_OCR_V,0);
+    	digital_num_ocr(DIGITAL_OCR_DP,0);
     }
     else{
 		 if(value_last>value){
@@ -241,8 +282,8 @@ void digital_vcc_display(unsigned int value,char status)
 			  digital_num_change(1,(value/10)%10);
 			  digital_num_change(2,value%10);  
 			 
-			 digital_ocr_change(DIGITAL_OCR_V,1);
-			 digital_ocr_change(DIGITAL_OCR_DP,1);
+			 digital_num_ocr(DIGITAL_OCR_V,1);
+			 digital_num_ocr(DIGITAL_OCR_DP,1);
 		 }
 		 value_last = value;
     }

@@ -83,7 +83,8 @@ void jumpstart_been_wave(void)
 
 void jumpstart_been_enbale(char enable)
 {
-	static 	char pwm_been_init = 0;
+	static char pwm_been_init = 0;
+	printf("been %d\r\n",(unsigned int)enable);
 	if(pwm_been_init==0)
 	{
 		pwm_been_init = 1;
@@ -245,9 +246,12 @@ void jumpstart_batter_ledstatus(unsigned int vout_vcc)
 
 void jumpstar_waring_control(void)
 {
+	#if 0
 	static char power_waring_cnt = 0;
 	if(power_waring_cnt<1)power_waring_cnt++;
 	if(power_waring_cnt==0)return ;
+	#endif
+	
     junpstar_relay_flag = 0;
 	if(jumpstar_work_mode!=WORK_BATTERY)
 	{
@@ -258,8 +262,8 @@ void jumpstar_waring_control(void)
 			if(junpstar_vin_vcc>JUMP_VIN_LAST_LOW)jumpstar_digital_status=1;
 		}
 		else{
-			digital_ocr_change(DIGITAL_OCR_UV,0);		
-			jumpstart_been_enbale(0);		
+			//digital_ocr_change(DIGITAL_OCR_UV,0);		
+			//jumpstart_been_enbale(0);		
 		}
 	}
 	
@@ -338,6 +342,10 @@ void jumpstar_waring_control(void)
 			(unsigned int)junpstar_vin_vcc,(unsigned int)junpstar_out_vcc);
 		#endif
 	}
+		#if 1
+		printf("mode %d waring %d v:%d,%d\r\n",(unsigned int)jumpstar_work_mode,(unsigned int)junpstar_relay_flag,\
+			(unsigned int)junpstar_vin_vcc,(unsigned int)junpstar_out_vcc);
+		#endif
 }
 
 
