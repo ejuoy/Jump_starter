@@ -74,6 +74,7 @@ void main (void)
     app_uart_init();
     led_gpio_init();
     Version_show();
+	Timer2_Delay(16000000,128,5,200000);
     app_timer0_init();
     jumpstart_gpio_init();
     digital_gpio_init();

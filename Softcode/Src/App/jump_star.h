@@ -40,6 +40,7 @@ enum _JUMP_WORK_STATUS_
 #define JUMP_VOUT_BATTER_FULL    130
 #define JUMP_VOUT_BATTER_GOOD    139
 #define JUMP_VOUT_BATTER_FAULT   150
+#define JUMP_VOUT_BATTER_MCU	 80
 
 void jumpstar_key_timecnt(void);
 void jumpstart_gpio_init(void);

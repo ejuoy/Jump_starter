@@ -295,7 +295,7 @@ void jumpstar_waring_control(void)
                 }
             }
             if(jumpstar_work_mode==WORK_BATTERY){           
-                if(junpstar_out_vcc<75)     // can't work
+                if(junpstar_out_vcc<JUMP_VOUT_BATTER_MCU)     // can't work
                 {
                     digital_ocr_change(DIGITAL_OCR_UV,1);
                     jumpstart_been_enbale(1);
