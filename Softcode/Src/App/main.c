@@ -12,8 +12,8 @@
 #include "jump_star.h"
 
 
-#define SOFT_VERSION	"v1.01.02"
-#define PRJ_NAME		"CP010-121"
+#define SOFT_VERSION	"v1.01.01"
+#define PRJ_NAME		"CP020-621"
 
 void Version_show(void)
 {
@@ -25,45 +25,6 @@ void Version_show(void)
 }
 
 unsigned int xdata temp;
-#if 0
-void main(void)
-{
-    unsigned int get_vcc_value = 0;
-    char pingpong = 0;
-
-    MODIFY_HIRC(HIRC_24);
-    app_uart_init();
-    led_gpio_init();
-    Version_show();
-    //led_gpio_contrl(LED_B_FULL,1);
-    app_timer0_init();
-    jumpstart_gpio_init();
-    digital_gpio_init();
-
-    digital_ocr_change(DIGITAL_OCR_V,1);
-    digital_ocr_change(DIGITAL_OCR_DP,1);
-    digital_vcc_display(456,0);
-    while(1)
-    {
-        #if  0
-        /*Enable channel 4 */ 
-        ENABLE_ADC_CH5;
-        ADC_ConvertTime(ADC_CH5,2,7);
-        clr_ADCCON0_ADCF;
-        set_ADCCON0_ADCS;                  // ADC start trig signal
-        while(ADCF == 0);
-        temp=(ADCRH<<4)+(ADCRL&0x0F);
-        get_vcc_value = (unsigned int)(((unsigned long)temp*518)/4095);
-        printf("VCC=%d,ADC=%d\r\n",get_vcc_value,temp);
-        digital_vcc_display(get_vcc_value,1);
-        Timer2_Delay(24000000,128,300,1000);
-        #endif
-        
-        jumpstart_handle_process();
-        //jumpstart_batter_ledcontrl(0,5);
-    } 
-}
-#endif
 
 void main (void) 
 {

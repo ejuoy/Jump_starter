@@ -22,7 +22,7 @@
   </DaveTm>
 
   <Target>
-    <TargetName>CP010</TargetName>
+    <TargetName>CP020</TargetName>
     <ToolsetNumber>0x0</ToolsetNumber>
     <ToolsetName>MCS-51</ToolsetName>
     <TargetOption>
