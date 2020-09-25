@@ -19,6 +19,15 @@ enum _JUMP_WORK_STATUS_
     WORK_BOTH 
 };
 
+enum _JUMP_KEY_STATUS_
+{
+    KEY_NULL = 0 ,
+    KEY_RUNNING ,
+    KEY_TEST
+};
+
+
+
 #define WOKR_KEY_PRESS_TIME 1000
 #define JUMP_VOUT_AVG_MAX	160
 #define JUMP_VOUT_AVG_MIN	70

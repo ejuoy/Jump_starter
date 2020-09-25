@@ -39,10 +39,10 @@ void led_gpio_contrl(char led,char status)
 			LED_B_FULL = status;
 			break;
 		case A_GOOD:
-			LED_A_GOOD = status;
+			//LED_A_GOOD = status;
 			break;
 		case A_FAULT:
-			LED_A_FAULT = status;
+			//LED_A_FAULT = status;
 			break;
 		case J_FAULT:
 			LED_J_FAULT = status;

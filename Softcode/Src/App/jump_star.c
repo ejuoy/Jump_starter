@@ -11,6 +11,7 @@ static char jumpstar_been_en = 0;
 static char jumpstar_relay_en = 0;
 static unsigned int jumpstar_relay_cyc = 0;
 static char jumpstar_work_mode = WORK_JUMP;
+static char jumpstar_key_mode  = KEY_RUNNING;
 
 char junpstar_adc_chanle = VIN_ADC;
 char jumpstar_digital_status = 1;
@@ -425,7 +426,7 @@ void jumpstar_relay_process(void)
 {
 	char batter_star_ok = 0;
 	
-    if(jumpstar_work_mode==WORK_BOTH)
+    if(jumpstar_work_mode==WORK_BOTH&&jumpstar_key_mode == KEY_RUNNING)
     {
 		if(jumpstar_battery_over==1)return ;
         // if not warning 
@@ -557,13 +558,9 @@ unsigned char jumpstart_key_handle(void)
         if(key_press==0){
             key_press++;
         }
-        if(key_handle==WOKR_KEY_PRESS_TIME)
-        {
-            key_handle = 2;
-        }
     }
     else{
-        if(key_press>0&&key_press<WOKR_KEY_PRESS_TIME){
+        if(key_press>2){
             key_handle = 1;
         }
         key_press = 0;
@@ -720,6 +717,7 @@ void jumpstart_judge_mode(void)
 {
     char voutstatus = 0;
 	char jumpstar_work_back = jumpstar_work_mode;
+	char jumpstar_key_back = jumpstar_key_mode;
     char key_value = jumpstart_key_handle();
     voutstatus = jumpstart_judge_voutwave();
 	#if 0
@@ -741,13 +739,7 @@ void jumpstart_judge_mode(void)
         }
     }
     else{
-        if(jumpstar_work_mode!=WORK_KEY){
-            if(key_value==2){
-                jumpstar_work_mode = WORK_KEY;
-                jumpstar_battery_over = 0;
-                key_press = 0;
-            }
-            else if(voutstatus==2){
+            if(voutstatus==2){
 				if(jumpstar_work_mode!=WORK_BOTH){
 					jumpstar_battery_vcc = junpstar_out_vcc;
 				}
@@ -757,23 +749,30 @@ void jumpstart_judge_mode(void)
                 jumpstar_work_mode = WORK_JUMP;
                 jumpstar_battery_over = 0;
             }
-        }
-        else{
-            if(key_value==1)
-            {
-                jumpstar_work_mode = WORK_NULL;
-            }
-        }
     }
+	if(key_value==1){
+		if(jumpstar_key_mode==KEY_RUNNING){
+			LED_A_GOOD = 1;	
+			jumpstar_relay_cnt = 0;
+			jumpstart_relay_enable(0);
+			jumpstar_key_mode = KEY_TEST;
+		}
+		else{			
+			LED_A_GOOD = 0;
+			jumpstar_key_mode = KEY_RUNNING;
+		}
+	}
 	if(jumpstar_work_back!=jumpstar_work_mode){
 		printf("Mode %d\r\n",(unsigned int)jumpstar_work_mode);
+	}
+	if(jumpstar_key_back!=jumpstar_key_mode){
+		printf("key %d\r\n",(unsigned int)jumpstar_key_mode);
 	}
 }
 
 void jumpstart_handle_process(void)
 {
     jumpstart_judge_mode();         //
-    jumpstart_key_handle();         //   
     jumpstar_waring_control();
     jumpstart_display_control();
     jumpstar_relay_process();
