@@ -24,7 +24,7 @@ unsigned int relay_release_flag = 0;
 unsigned char jumpstar_battery_over = 0;
 static int judge_disable_cnt = 0;
 char junpstar_waring_flag = 0;
-static int judge_relay_battey_exit = 0;
+char junpstar_waring_uv = 0;
 
 unsigned int jumpstar_relay_first_vcc = 0;
 unsigned int jumpstar_relay_cnt = 0;
@@ -52,6 +52,7 @@ void jumpstart_gpio_init(void)
 
 void jumpstart_vout_produce(void)
 {
+	static int relay_cnt = 0;
     static int cyc = 0;
     if(cyc==1){
         TEST_ENA = 1;
@@ -64,7 +65,12 @@ void jumpstart_vout_produce(void)
     else if(cyc>241){
 		if(jumpstar_relay_cnt>0&&(jumpstar_work_mode!=WORK_BOTH))
 		{
-			jumpstar_relay_cnt --;
+			relay_cnt ++;
+ 			if(relay_cnt>40){
+				jumpstar_relay_cnt = 0;
+				printf("relay_cnt\r\n");
+				relay_cnt = 0;
+			}
 		}
         cyc = 0;
     }
@@ -297,9 +303,18 @@ void jumpstar_waring_control(void)
 			digital_ocr_change(DIGITAL_OCR_UV,1);
 			jumpstart_been_enbale(1); 
 			junpstar_relay_flag |=(0x01<<2);
+			junpstar_waring_uv = 1;
+			if(junpstar_vin_vcc>JUMP_VIN_LAST_LOW)jumpstar_digital_status=1;
+		}
+		else if(junpstar_waring_uv==1&&junpstar_vin_vcc<(JUMP_VIN_LOW+1)&&jumpstar_relay_en==0){
+			digital_ocr_change(DIGITAL_OCR_UV,1);
+			jumpstart_been_enbale(1); 
+			junpstar_relay_flag |=(0x01<<2);
+			junpstar_waring_uv = 1;
 			if(junpstar_vin_vcc>JUMP_VIN_LAST_LOW)jumpstar_digital_status=1;
 		}
 		else{
+			junpstar_waring_uv = 0;
 			//digital_ocr_change(DIGITAL_OCR_UV,0);		
 			//jumpstart_been_enbale(0);		
 		}
@@ -324,6 +339,12 @@ void jumpstar_waring_control(void)
 		
 		if(jumpstar_work_mode!=WORK_BATTERY){
 			if(junpstar_vin_vcc<JUMP_VIN_LAST_LOW&&jumpstar_relay_en==0){ 	   //vin low beep
+				digital_ocr_change(DIGITAL_OCR_UV,1);
+				jumpstar_digital_status = 0;	// ---
+				jumpstart_been_enbale(1);
+				junpstar_relay_flag |=(0x01<<2);
+			}
+			if(jumpstar_digital_status==0&&junpstar_vin_vcc<(JUMP_VIN_LAST_LOW+1)&&jumpstar_relay_en==0){ 	   //vin low beep
 				digital_ocr_change(DIGITAL_OCR_UV,1);
 				jumpstar_digital_status = 0;	// ---
 				jumpstart_been_enbale(1);
@@ -500,7 +521,7 @@ void jumpstart_display_control(void)
             led_gpio_contrl(i,0);   // clear vout led
         }
         jumpstart_vin_ledstatus();
-        if(judge_relay_battey_exit==0)digital_vcc_display(junpstar_vin_vcc,jumpstar_digital_status);
+        digital_vcc_display(junpstar_vin_vcc,jumpstar_digital_status);
     }
     else if(jumpstar_work_mode==WORK_BATTERY)
     {
@@ -627,8 +648,6 @@ unsigned char jumpstart_vout_judge(void)
 			
     if((mul_value>(JUMP_JUDGE_VOUT_NUM/2))&&(mul_value<7)&&(mul_max>6)&&mul_avg<JUMP_JUDGE_VOUT_NUM/2){
         judge_disable_cnt = JUMP_JUDGE_VOUT_NUM;
-		if(relay_release_flag==1&&judge_relay_battey_exit==0)judge_relay_battey_exit = 40;
-		if(judge_relay_battey_exit>0)judge_relay_battey_exit--;
 		check_wave_cnt = 0;
         vout_ret = 1;
 
@@ -647,7 +666,6 @@ unsigned char jumpstart_vout_judge(void)
     else if(mul_avg<JUMP_JUDGE_VOUT_NUM&&mul_max<6&&junpstar_out_vcc>JUMP_VOUT_SHORT_ERROR){
         judge_disable_cnt = JUMP_JUDGE_VOUT_NUM;
         check_battey_cnt++;
-		judge_relay_battey_exit = 0;
         if(relay_release_flag==1){
             check_battey_cnt = 0;
             vout_ret = 2;
@@ -658,7 +676,6 @@ unsigned char jumpstart_vout_judge(void)
         }
     }
     else{
-		if(judge_relay_battey_exit>0)judge_relay_battey_exit--;
         check_battey_cnt = 0;
         check_wave_cnt = 0;
         vout_ret = 0;
