@@ -55,6 +55,10 @@ void jumpstart_vout_produce(void)
 {
 	static int relay_cnt = 0;
     static int cyc = 0;
+	if(jumpstar_key_mode==KEY_TEST){
+		cyc = 0;
+		return;
+	}
     if(cyc==1){
         TEST_ENA = 1;
         TEST_ENB = 0;
@@ -686,6 +690,7 @@ unsigned char jumpstart_vout_judge(void)
 unsigned char jumpstart_judge_voutwave(void)     // 0 not judge 1 vout wave  2 vout battey
 {
 	unsigned char vout_ret = 0;
+	unsigned char vout_vcc = 0;
     if(jumpstar_relay_en==0||relay_release_flag==1)
     {
         if(junpstar_adc_chanle==VIN_ADC){
@@ -693,8 +698,19 @@ unsigned char jumpstart_judge_voutwave(void)     // 0 not judge 1 vout wave  2 v
             junpstar_adc_chanle = VOUT_ADC;
         }
         else{
-            junpstar_out_vcc = app_getadc_value(junpstar_adc_chanle);
-            vout_ret = jumpstart_vout_judge();             
+			vout_vcc = app_getadc_value(junpstar_adc_chanle);
+			if(jumpstar_key_mode==KEY_TEST&&vout_vcc<10){
+				if(jumpstar_work_mode==WORK_BOTH){
+					vout_ret = 1;
+				}
+				else{
+					vout_ret = 0;
+				}
+			}
+			else{
+				junpstar_out_vcc = vout_vcc;
+				vout_ret = jumpstart_vout_judge();			   
+			}
             junpstar_adc_chanle = VIN_ADC;
 					
             //printf("Out,%d\r\n",junpstar_out_vcc);
@@ -755,10 +771,14 @@ void jumpstart_judge_mode(void)
 			LED_A_GOOD = 1;	
 			jumpstar_relay_cnt = 0;
 			jumpstart_relay_enable(0);
+			TEST_ENA = 0;
+       		TEST_ENB = 0;
 			jumpstar_key_mode = KEY_TEST;
 		}
 		else{			
 			LED_A_GOOD = 0;
+			TEST_ENA = 1;
+       		TEST_ENB = 0;
 			jumpstar_key_mode = KEY_RUNNING;
 		}
 	}
