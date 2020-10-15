@@ -266,11 +266,28 @@ void jumpstart_batter_ledcontrl(char led_io,char speed)
 
 void jumpstart_batter_ledstatus(unsigned int vout_vcc)
 {
-	static unsigned char delay_play = 5;
+	static unsigned char delay_play = 5;	
+	static unsigned char clear_vcc = 0;
     char led_control_io = 0;
     char led_control_speed = 0;
     char i = 0;
-
+	static unsigned int vout_vcc_old = 0;
+	if(vout_vcc>vout_vcc_old){
+		if(vout_vcc>(vout_vcc_old+1)){
+			vout_vcc_old = vout_vcc;
+		}
+		else{
+			return;
+		}
+	}
+	else{
+		if(vout_vcc<(vout_vcc_old-1)){
+			vout_vcc_old = vout_vcc;
+		}
+		else{
+			return;
+		}
+	}
 	if(delay_play>0)
 	{
 		delay_play--;
@@ -278,6 +295,11 @@ void jumpstart_batter_ledstatus(unsigned int vout_vcc)
 	}
 	else{
 		delay_play = 5;
+		clear_vcc++;
+		if(clear_vcc>10){
+			vout_vcc_old = 0;
+			clear_vcc = 0;
+		}
 	}
 	
     for(i = 0 ;i<5;i++)
@@ -700,8 +722,13 @@ unsigned char jumpstart_judge_voutwave(void)     // 0 not judge 1 vout wave  2 v
         else{
 			vout_vcc = app_getadc_value(junpstar_adc_chanle);
 			if(jumpstar_key_mode==KEY_TEST&&vout_vcc<10){
-				if(jumpstar_work_mode==WORK_BOTH){
+				if(jumpstar_work_mode==WORK_BOTH&&jumpstar_work_mode==WORK_JUMP){
 					vout_ret = 1;
+					LED_A_GOOD = 0;
+					jumpstar_key_mode = KEY_RUNNING;
+					judge_disable_cnt = JUMP_JUDGE_VOUT_NUM;
+					jumpstar_work_mode = WORK_JUMP;
+					printf("exit battery!!\r\n");
 				}
 				else{
 					vout_ret = 0;
