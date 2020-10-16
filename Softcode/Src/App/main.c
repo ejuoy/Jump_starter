@@ -44,6 +44,7 @@ void main (void)
     /*----------------------------------------------------------------------------------------------*/
 
     app_uart_init();
+    jumpstart_been_enbale(1);
     led_gpio_init();
     Version_show();
 	Timer2_Delay(16000000,128,5,200000);
@@ -51,7 +52,7 @@ void main (void)
     jumpstart_gpio_init();
     digital_gpio_init();
     WDT_Init();
-
+    jumpstart_been_enbale(0);
     while(1)
     {
         jumpstart_handle_process();

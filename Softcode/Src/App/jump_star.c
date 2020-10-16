@@ -31,7 +31,7 @@ unsigned int jumpstar_relay_first_vcc = 0;
 unsigned int jumpstar_relay_cnt = 0;
 unsigned int jumpstar_relay_low_vcc = 0;
 unsigned int jumpstar_relay_cur_vcc = 0;
-
+//unsigned int power_all_show = 200;
 
 unsigned char battery_vcc_table[6]={JUMP_VOUT_BATTER_ERROR,JUMP_VOUT_BATTER_LOW,JUMP_VOUT_BATTER_MIDDLE,JUMP_VOUT_BATTER_FULL,JUMP_VOUT_BATTER_GOOD,JUMP_VOUT_OVER_ERROR};
 unsigned int vout_vcc_arr[JUMP_JUDGE_VOUT_NUM]={0xff};
@@ -549,7 +549,6 @@ void jumpstar_relay_process(void)
 void jumpstart_display_control(void)
 {
     char i = 0;
-    static int power_all_show = 50;
     if(power_all_show>0){
         power_all_show--;
         return;

@@ -7,6 +7,7 @@ static char digital_display_arr[5] = {0xfe,0xfd,0xfb,0xf7,0xef};
 //static char digital_display_arr[5] = {0x00,0x00,0x00,0x00,0x00};
 volatile char digital_update_time = 0;
 char code digital_num_table[]={0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f,0x40};
+unsigned int power_all_show = 200;
 
 void digital_gpio_init(void)
 {
@@ -161,6 +162,10 @@ void digital_ocr_change(char ocr,char status)
     char check_com = 0;
     char com = 0;
 	
+    if(power_all_show>0){
+        return;
+    }
+    
 	if(delay_play>0&&status==1)
 	{
 		delay_play--;

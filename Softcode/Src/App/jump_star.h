@@ -61,5 +61,6 @@ void jumpstart_been_wave(void);
 
 void jumpstart_relay_control(void);
 void jumpstart_handle_process(void);
+void jumpstart_been_enbale(char enable);
 
 #endif

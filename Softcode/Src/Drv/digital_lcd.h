@@ -31,4 +31,6 @@ void digital_num_change(char pos,char num);
 void digital_gpio_init(void);
 void digital_lcd_show_1(void);
 extern char digital_update_time;
+extern unsigned int power_all_show ;
+
 #endif
