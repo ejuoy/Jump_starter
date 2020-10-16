@@ -12,7 +12,7 @@
 #include "jump_star.h"
 
 
-#define SOFT_VERSION	"v1.01.01"
+#define SOFT_VERSION	"v1.01.03"
 #define PRJ_NAME		"CP020-621"
 
 void Version_show(void)
@@ -24,53 +24,25 @@ void Version_show(void)
 	printf("+++++++++++++++++++++++++++++++++\r\n");
 }
 
-unsigned int xdata temp;
-#if 0
-void main(void)
+void WDT_Init(void)
 {
-    unsigned int get_vcc_value = 0;
-    char pingpong = 0;
-
-    MODIFY_HIRC(HIRC_24);
-    app_uart_init();
-    led_gpio_init();
-    Version_show();
-    //led_gpio_contrl(LED_B_FULL,1);
-    app_timer0_init();
-    jumpstart_gpio_init();
-    digital_gpio_init();
-
-    digital_ocr_change(DIGITAL_OCR_V,1);
-    digital_ocr_change(DIGITAL_OCR_DP,1);
-    digital_vcc_display(456,0);
-    while(1)
-    {
-        #if  0
-        /*Enable channel 4 */ 
-        ENABLE_ADC_CH5;
-        ADC_ConvertTime(ADC_CH5,2,7);
-        clr_ADCCON0_ADCF;
-        set_ADCCON0_ADCS;                  // ADC start trig signal
-        while(ADCF == 0);
-        temp=(ADCRH<<4)+(ADCRL&0x0F);
-        get_vcc_value = (unsigned int)(((unsigned long)temp*518)/4095);
-        printf("VCC=%d,ADC=%d\r\n",get_vcc_value,temp);
-        digital_vcc_display(get_vcc_value,1);
-        Timer2_Delay(24000000,128,300,1000);
-        #endif
-        
-        jumpstart_handle_process();
-        //jumpstart_batter_ledcontrl(0,5);
-    } 
+    TA=0xAA;TA=0x55;WDCON|=0x07;                //Setting WDT prescale 
+    set_WDCON_WDCLR;                            //Clear WDT timer
+    while((WDCON|~SET_BIT6)==0xFF);             //confirm WDT clear is ok before into power down mode
+    set_WDCON_WDTR;                             //WDT run
 }
-#endif
 
 void main (void) 
 {
-    unsigned int get_vcc_value = 0;
-    char pingpong = 0;
-
     MODIFY_HIRC(HIRC_24);
+    Disable_WDT_Reset_Config();
+    /*----------------------------------------------------------------------------------------------*/
+    /* WDT Init !!! ENABLE CONFIG WDT FIRST !!!                                                     */
+    /* Warning:                                                                                     */
+    /* Always check CONFIG WDT enable first, CONFIG not enable, SFR can't enable WDT reset          */
+    /* Please call Enable_WDT_Reset_Config() function to enable CONFIG WDT reset                    */
+    /*----------------------------------------------------------------------------------------------*/
+
     app_uart_init();
     led_gpio_init();
     Version_show();
@@ -78,10 +50,12 @@ void main (void)
     app_timer0_init();
     jumpstart_gpio_init();
     digital_gpio_init();
-	
+    WDT_Init();
+
     while(1)
     {
         jumpstart_handle_process();
+        set_WDCON_WDCLR; 
     }
 }
 

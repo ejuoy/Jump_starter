@@ -266,28 +266,14 @@ void jumpstart_batter_ledcontrl(char led_io,char speed)
 
 void jumpstart_batter_ledstatus(unsigned int vout_vcc)
 {
-	static unsigned char delay_play = 5;	
-	static unsigned char clear_vcc = 0;
+	  static unsigned char delay_play = 5;	
     char led_control_io = 0;
     char led_control_speed = 0;
     char i = 0;
-	static unsigned int vout_vcc_old = 0;
-	if(vout_vcc>vout_vcc_old){
-		if(vout_vcc>(vout_vcc_old+1)){
-			vout_vcc_old = vout_vcc;
-		}
-		else{
-			return;
-		}
-	}
-	else{
-		if(vout_vcc<(vout_vcc_old-1)){
-			vout_vcc_old = vout_vcc;
-		}
-		else{
-			return;
-		}
-	}
+    static unsigned int value_last = 0;
+    char change_flag = 0;
+    static char change_cnt = 0;
+
 	if(delay_play>0)
 	{
 		delay_play--;
@@ -295,13 +281,33 @@ void jumpstart_batter_ledstatus(unsigned int vout_vcc)
 	}
 	else{
 		delay_play = 5;
-		clear_vcc++;
-		if(clear_vcc>10){
-			vout_vcc_old = 0;
-			clear_vcc = 0;
-		}
 	}
-	
+
+
+    if(value_last>vout_vcc){
+        if((value_last-vout_vcc)>1){
+            change_flag = 1;
+        }
+    }
+    else{
+        if((vout_vcc - value_last)>1){
+            change_flag = 1;
+        }
+    }
+    if(change_flag==0){
+        change_cnt ++;
+        if(change_cnt>100){
+            change_cnt = 0;
+            change_flag = 1;
+        }
+    }
+    if(change_flag==1){
+        value_last = vout_vcc;
+    }
+    else{
+        vout_vcc = value_last;
+    }
+    
     for(i = 0 ;i<5;i++)
     {
         if((vout_vcc>battery_vcc_table[i])&&(vout_vcc<=battery_vcc_table[i+1]))
@@ -312,6 +318,7 @@ void jumpstart_batter_ledstatus(unsigned int vout_vcc)
         }
 		if(vout_vcc>JUMP_VOUT_OVER_ERROR)return ;
     }
+    printf("bat led:%d,%d,%d\r\n",(unsigned int)vout_vcc,(unsigned int)led_control_io,(unsigned int)led_control_speed);
     jumpstart_batter_ledcontrl(led_control_io,led_control_speed);
 }
 
@@ -542,6 +549,12 @@ void jumpstar_relay_process(void)
 void jumpstart_display_control(void)
 {
     char i = 0;
+    static int power_all_show = 50;
+    if(power_all_show>0){
+        power_all_show--;
+        return;
+    }
+
     if(jumpstar_work_mode==WORK_JUMP)
     {
         for(i = 1;i<6;i++){
