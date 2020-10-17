@@ -265,6 +265,9 @@ void jumpstart_batter_ledstatus(unsigned int vout_vcc)
     char led_control_io = 0;
     char led_control_speed = 0;
     char i = 0;
+    static unsigned int value_last = 0;
+    char change_flag = 0;
+    static char change_cnt = 0;
 
 	if(delay_play>0)
 	{
@@ -275,6 +278,29 @@ void jumpstart_batter_ledstatus(unsigned int vout_vcc)
 		delay_play = 5;
 	}
 	
+    if(value_last>vout_vcc){
+        if((value_last-vout_vcc)>1){
+            change_flag = 1;
+        }
+    }
+    else{
+        if((vout_vcc - value_last)>1){
+            change_flag = 1;
+        }
+    }
+    if(change_flag==0){
+        change_cnt ++;
+        if(change_cnt>100){
+            change_cnt = 0;
+            change_flag = 1;
+        }
+    }
+    if(change_flag==1){
+        value_last = vout_vcc;
+    }
+    else{
+        vout_vcc = value_last;
+    }
     for(i = 0 ;i<5;i++)
     {
         if((vout_vcc>battery_vcc_table[i])&&(vout_vcc<=battery_vcc_table[i+1]))
@@ -515,6 +541,18 @@ void jumpstar_relay_process(void)
 void jumpstart_display_control(void)
 {
     char i = 0;
+    if(power_all_show>0){
+        power_all_show--;
+		if(power_all_show==0){
+			digital_ocr_change(DIGITAL_OCR_OV,0);
+			digital_ocr_change(DIGITAL_OCR_CB,0);
+			digital_ocr_change(DIGITAL_OCR_OT,0);
+			digital_ocr_change(DIGITAL_OCR_SC,0);		
+			digital_ocr_change(DIGITAL_OCR_UV,0);
+		}
+        return;
+    }
+	
     if(jumpstar_work_mode==WORK_JUMP)
     {
         for(i = 1;i<6;i++){
