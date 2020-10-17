@@ -35,7 +35,7 @@ void WDT_Init(void)
 void main (void) 
 {
     MODIFY_HIRC(HIRC_24);
-    Disable_WDT_Reset_Config();
+    //Disable_WDT_Reset_Config();
     /*----------------------------------------------------------------------------------------------*/
     /* WDT Init !!! ENABLE CONFIG WDT FIRST !!!                                                     */
     /* Warning:                                                                                     */
@@ -44,19 +44,17 @@ void main (void)
     /*----------------------------------------------------------------------------------------------*/
 
     app_uart_init();
-    jumpstart_been_enbale(1);
     led_gpio_init();
     Version_show();
 	Timer2_Delay(16000000,128,5,200000);
     app_timer0_init();
     jumpstart_gpio_init();
     digital_gpio_init();
-    WDT_Init();
-    jumpstart_been_enbale(0);
+    //WDT_Init();
     while(1)
     {
         jumpstart_handle_process();
-        set_WDCON_WDCLR; 
+        //set_WDCON_WDCLR; 
     }
 }
 

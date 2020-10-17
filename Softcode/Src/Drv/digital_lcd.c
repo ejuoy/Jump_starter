@@ -277,7 +277,7 @@ void digital_vcc_display(unsigned int value,char status)
 		 }
 		 if(change_flag==0){
 			change_cnt ++;
-			if(change_cnt>12){
+			if(change_cnt>60){
 				change_cnt = 0;
 				change_flag = 1;
 			}

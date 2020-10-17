@@ -57,6 +57,8 @@ void jumpstart_vout_produce(void)
     static int cyc = 0;
 	if(jumpstar_key_mode==KEY_TEST){
 		cyc = 0;
+		//TEST_ENA = 0;
+        //TEST_ENB = 0;
 		return;
 	}
     if(cyc==1){
@@ -283,7 +285,6 @@ void jumpstart_batter_ledstatus(unsigned int vout_vcc)
 		delay_play = 5;
 	}
 
-
     if(value_last>vout_vcc){
         if((value_last-vout_vcc)>1){
             change_flag = 1;
@@ -356,7 +357,7 @@ void jumpstar_waring_control(void)
 	
     if(P_NTC==1&&junpstar_vin_vcc>JUMP_VIN_NOT_ACCESS){       //过温    
         junpstar_relay_flag |=(0x01);
-		digital_ocr_change(DIGITAL_OCR_OT,1);		
+		digital_ocr_change(DIGITAL_OCR_OT,1);
 		jumpstart_been_enbale(1); 
 		jumpstar_digital_status = 0;	// ---
     }
@@ -551,6 +552,13 @@ void jumpstart_display_control(void)
     char i = 0;
     if(power_all_show>0){
         power_all_show--;
+		if(power_all_show==0){
+			digital_ocr_change(DIGITAL_OCR_OV,0);
+			digital_ocr_change(DIGITAL_OCR_CB,0);
+			digital_ocr_change(DIGITAL_OCR_OT,0);
+			digital_ocr_change(DIGITAL_OCR_SC,0);		
+			digital_ocr_change(DIGITAL_OCR_UV,0);
+		}
         return;
     }
 
@@ -734,7 +742,7 @@ unsigned char jumpstart_judge_voutwave(void)     // 0 not judge 1 vout wave  2 v
         else{
 			vout_vcc = app_getadc_value(junpstar_adc_chanle);
 			if(jumpstar_key_mode==KEY_TEST&&vout_vcc<10){
-				if(jumpstar_work_mode==WORK_BOTH&&jumpstar_work_mode==WORK_JUMP){
+				if(jumpstar_work_mode==WORK_BOTH||jumpstar_work_mode==WORK_JUMP){
 					vout_ret = 1;
 					LED_A_GOOD = 0;
 					jumpstar_key_mode = KEY_RUNNING;
