@@ -423,7 +423,8 @@ void jumpstar_waring_control(void)
                     junpstar_relay_flag |=(0x01<<5);
                 }
             }
-            if(jumpstar_work_mode==WORK_BATTERY){           
+            if(jumpstar_work_mode==WORK_BATTERY){  
+				#if 0
                 if(junpstar_out_vcc<JUMP_VOUT_BATTER_MCU)     // can't work
                 {
                     digital_ocr_change(DIGITAL_OCR_UV,1);
@@ -431,6 +432,8 @@ void jumpstar_waring_control(void)
                     jumpstar_digital_status = 0;    // 
                     junpstar_relay_flag |=(0x01<<5);
                 }
+				#endif
+				
 				if(jumpstar_digital_status==0&&junpstar_out_vcc<(JUMP_VOUT_BATTER_MCU+1))     // can't work
                 {
                     digital_ocr_change(DIGITAL_OCR_UV,1);
