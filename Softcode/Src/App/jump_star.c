@@ -410,6 +410,7 @@ void jumpstar_waring_control(void)
                     junpstar_relay_flag |=(0x01<<5);
                 }
             }
+			#if 0
             if(jumpstar_work_mode==WORK_BATTERY){           
                 if(junpstar_out_vcc<JUMP_VOUT_BATTER_MCU)     // can't work
                 {
@@ -426,6 +427,7 @@ void jumpstar_waring_control(void)
                     junpstar_relay_flag |=(0x01<<5);
                 }
             }
+			#endif
         }
     }
     if(junpstar_relay_flag==0||((jumpstar_work_mode==WORK_KEY)&&(jumpstar_relay_en&(0x01))==0)){
