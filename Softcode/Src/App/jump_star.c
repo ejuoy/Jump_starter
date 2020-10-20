@@ -23,7 +23,7 @@ unsigned int junpstar_vin_vcc = 140;
 unsigned int jumpstar_relay_vcc = 0;
 unsigned int relay_release_flag = 0;
 unsigned char jumpstar_battery_over = 0;
-static int judge_disable_cnt = 0;
+static int judge_disable_cnt = 50;
 char junpstar_waring_flag = 0;
 char junpstar_waring_uv = 0;
 
@@ -250,7 +250,7 @@ void jumpstart_batter_ledcontrl(char led_io,char speed)
                 led_pipo = 0;
             }
         }
-        else if(led_cyc>(50/speed)){
+        else if(led_cyc>(50/(speed+1))){
             led_cyc = 0;
         }
     }
@@ -317,7 +317,11 @@ void jumpstart_batter_ledstatus(unsigned int vout_vcc)
             led_control_speed = (vout_vcc - battery_vcc_table[i])*5/(battery_vcc_table[i+1]-battery_vcc_table[i]);
             break;
         }
-		if(vout_vcc>JUMP_VOUT_OVER_ERROR)return ;
+		if(vout_vcc>JUMP_VOUT_OVER_ERROR){
+			led_control_io = 4;
+			led_control_speed = 5;
+			break;
+		}
     }
     printf("bat led:%d,%d,%d\r\n",(unsigned int)vout_vcc,(unsigned int)led_control_io,(unsigned int)led_control_speed);
     jumpstart_batter_ledcontrl(led_control_io,led_control_speed);
