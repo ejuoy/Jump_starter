@@ -552,6 +552,9 @@ void jumpstart_display_control(void)
     char i = 0;
     if(power_all_show>0){
         power_all_show--;
+		if(power_all_show==150){
+			led_gpio_all_on();
+		}
 		if(power_all_show==0){
 			digital_ocr_change(DIGITAL_OCR_OV,0);
 			digital_ocr_change(DIGITAL_OCR_CB,0);
