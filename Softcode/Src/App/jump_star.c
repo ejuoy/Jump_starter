@@ -210,8 +210,10 @@ void jumpstart_relay_control(void)
 		jumpstar_relay_release_time ++;
 		if(jumpstar_relay_release_time==30)				//change high
 		{
-			relay_release_flag = 1;
+			//relay_release_flag = 1;
+			junpstar_vin_vcc = app_getadc_value(VIN_ADC);
             junpstar_relay_vcc_low = app_getadc_value(VOUT_ADC);
+			junpstar_out_vcc = junpstar_relay_vcc_low;
 			judge_disable_cnt = JUMP_JUDGE_VOUT_NUM;
 			jumpstar_relay_cnt ++;
 			TEST_ENA = 0;
@@ -537,7 +539,7 @@ void jumpstar_relay_process(void)
         if(jumpstar_relay_en==1)
         {
         	//printf("%d,%d\r\n",junpstar_relay_vcc_low,junpstar_relay_vcc_high);
-        	
+        	//printf("%d,%d\r\n",junpstar_vin_vcc,junpstar_out_vcc);
         	//printf("%d,%d,%d\r\n",jumpstar_relay_low_vcc,jumpstar_relay_first_vcc,jumpstar_relay_cur_vcc);
         	#if 0
       		printf("mode %d relay %d v:%d,%d\r\n",(unsigned int)jumpstar_work_mode,(unsigned int)jumpstar_battery_vcc,\
