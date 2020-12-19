@@ -12,8 +12,8 @@
 #include "jump_star.h"
 
 
-#define SOFT_VERSION	"v1.01.01"
-#define PRJ_NAME		"CP010-121"
+#define SOFT_VERSION	"v3.00.01"
+#define PRJ_NAME		"CP010-121-3v"
 
 void Version_show(void)
 {
