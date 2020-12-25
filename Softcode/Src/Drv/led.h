@@ -25,7 +25,7 @@ enum _LED_CONTROL_
 
 void led_gpio_init(void);
 void led_gpio_contrl(char led,char status);
-void led_gpio_all_off(void);
+void led_gpio_all_on(void);
 #endif
 
 

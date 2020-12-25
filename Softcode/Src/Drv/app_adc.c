@@ -26,7 +26,7 @@ unsigned int app_getadc_value(char channle)
         while(ADCF == 0);
         adc_value=(ADCRH<<4)+(ADCRL&0x0F);
     }
-    vcc_value = (unsigned int)(((unsigned long)adc_value*515)/4095);
+    vcc_value = (unsigned int)(((unsigned long)adc_value*205)/4095);
     //printf ("\n ADC CH %d = 0x%02X", (unsigned int) channle, adc_value);
     return vcc_value;
 
