@@ -197,7 +197,8 @@ void jumpstart_relay_control(void)
 				jumpstar_relay_cyc_low_vcc = jumpstar_relay_first_vcc;
 			}
 			if(jumpstar_relay_cyc>500){
-				jumpstar_relay_cyc = 0;
+				jumpstar_relay_cyc = 0;				
+				jumpstar_relay_cnt ++;
 				jumpstar_relay_cyc_low_vcc = jumpstar_relay_first_vcc;			
 			}
 			jumpstar_relay_cyc ++;
@@ -476,7 +477,7 @@ void jumpstar_waring_control(void)
                 junpstar_relay_flag |=(0x01<<4);          
             }
             if(jumpstar_work_mode==WORK_BOTH){
-                if(jumpstar_battery_vcc>junpstar_vin_vcc){
+                if((jumpstar_battery_vcc+2)>junpstar_vin_vcc){
                     digital_ocr_change(DIGITAL_OCR_CB,1);
                     jumpstart_been_enbale(1);
                     jumpstar_digital_status = 0;    // 
@@ -796,7 +797,7 @@ unsigned char jumpstart_vout_judge(void)
         }
 		#endif
     }
-    else if(mul_avg<JUMP_JUDGE_VOUT_NUM&&mul_max<6&&junpstar_out_vcc>JUMP_VOUT_SHORT_ERROR){
+    else if(mul_avg<JUMP_JUDGE_VOUT_NUM&&mul_max<8&&junpstar_out_vcc>JUMP_VOUT_SHORT_ERROR){
         judge_disable_cnt = JUMP_JUDGE_VOUT_NUM;
         check_battey_cnt++;
         if(relay_release_flag==1){
